@@ -25,7 +25,7 @@ is coming from a private dashboard.
 - **Next.js 16** (App Router, server actions) with TypeScript
 - **Tailwind CSS 4** for styling, **Framer Motion** for the envelope and confetti animations
 - **Postgres** through **Drizzle ORM**
-- Hosting: **Vercel** (free Hobby plan) and **Neon** Postgres (free tier)
+- Hosting: **Render** (free web service) and **Neon** Postgres (free tier)
 
 ## Run it locally
 
@@ -41,25 +41,48 @@ npm run dev                   # http://localhost:3000/admin
 Other commands: `npm run lint`, `npm run typecheck`, `npm run build`.
 After changing `src/db/schema.ts`, run `npm run db:generate` to create a new migration.
 
-## Deploy for free (Vercel + Neon)
+## Deploy for free (Render + Neon)
 
-1. Push this repository to GitHub (already done if you're reading this there).
-2. Go to [vercel.com](https://vercel.com), sign in with GitHub, choose **Add New → Project** and
-   import this repository.
-3. In the project, open **Storage → Create Database → Neon (Postgres)** and connect it. This sets
-   `DATABASE_URL` for you.
-4. Under **Settings → Environment Variables**, add `ADMIN_PASSWORD`. Pick a strong password.
-5. Deploy. The `vercel-build` script runs the database migrations before every build.
-6. Open `https://<your-project>.vercel.app/admin`.
+### 1. Create the database on Neon (free, doesn't expire)
 
-Optional: add a custom domain under **Settings → Domains** and set `NEXT_PUBLIC_SITE_URL` to it so
-every invitation link uses that domain.
+1. Sign in at [neon.tech](https://neon.tech) with GitHub and create a project (pick the region
+   closest to you).
+2. On the project dashboard, click **Connect** and copy the connection string. It looks like
+   `postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`.
+
+Render's own free Postgres is deleted after 30 days, which is why we use Neon.
+
+### 2. Create the app on Render
+
+1. In the [Render dashboard](https://dashboard.render.com), choose **New → Blueprint**, connect
+   GitHub if asked, and select this repository. Render reads `render.yaml`.
+2. When asked, paste the Neon connection string as `DATABASE_URL` and choose an `ADMIN_PASSWORD`.
+3. Click **Apply**. The first build takes a few minutes and creates the database tables.
+4. Open `https://<your-service>.onrender.com/admin` and log in.
+
+If Render deploys from a branch other than the one containing this code, change the branch under
+the service's **Settings → Build & Deploy → Branch**.
+
+### 3. Keep it awake (recommended)
+
+Render's free apps go to sleep after 15 minutes without visitors, and the next visitor then waits
+about a minute. To make sure guests never wait:
+
+1. Create a free account at [UptimeRobot](https://uptimerobot.com) (or
+   [cron-job.org](https://cron-job.org)).
+2. Add an HTTP monitor for `https://<your-service>.onrender.com/api/health` every 5–10 minutes.
+
+One always-on service fits within Render's 750 free hours a month.
+
+Optional: if you add a custom domain, set `NEXT_PUBLIC_SITE_URL` to it so every invitation link uses
+that domain.
 
 ## Project layout
 
 ```
 src/
   app/
+    api/health/            Health check for Render and uptime monitors
     admin/                 Host dashboard (password protected by src/proxy.ts)
     i/[token]/             The guest's invitation page
       Envelope.tsx         Sealed-envelope opening animation

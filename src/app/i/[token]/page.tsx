@@ -6,7 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { guests } from "@/db/schema";
 import { dateParts, formatLongDate, formatTime } from "@/lib/datetime";
-import { eventInstants, googleCalendarUrl, mapsUrl } from "@/lib/links";
+import { eventInstants, getBaseUrl, googleCalendarUrl, mapsUrl } from "@/lib/links";
 import { getInvitation } from "./data";
 import { Invitation } from "./Invitation";
 
@@ -21,6 +21,8 @@ export async function generateMetadata({ params }: PageProps<"/i/[token]">): Pro
   const title = `${guest.name}, you're invited! 🎓`;
   const description = `${event.honoreeName}'s ${event.title} · ${formatLongDate(event.startsAt)}`;
   return {
+    // Link previews need an absolute image URL, so build it from the address the guest used.
+    metadataBase: new URL(await getBaseUrl()),
     title,
     description,
     openGraph: { title, description, type: "website" },

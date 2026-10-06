@@ -1,0 +1,17 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: graduation-invite
+    runtime: node
+    plan: free
+    # --include=dev: drizzle-kit (a dev dependency) runs the database migrations.
+    buildCommand: npm ci --include=dev && npm run db:migrate && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false # paste your Neon connection string when prompted
+      - key: ADMIN_PASSWORD
+        sync: false # choose your dashboard password when prompted

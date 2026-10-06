@@ -7,7 +7,6 @@ const script = Great_Vibes({ variable: "--font-great-vibes", subsets: ["latin"],
 const sans = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: process.env.NEXT_PUBLIC_SITE_URL ? new URL(process.env.NEXT_PUBLIC_SITE_URL) : undefined,
   title: "Graduation Invitation",
   description: "You're invited to celebrate.",
 };
