@@ -2,26 +2,14 @@
 
 Personal, animated graduation invitations that you share on WhatsApp.
 
-Each guest gets their own private link, and opening it is a **big reveal** inspired by video
-games:
+Each guest gets their own private link. When they open it they see a sealed envelope with their
+name on it. They tap it, and it opens into an invitation card with the event details, a
+countdown, "add to calendar" buttons and an RSVP form. You track who opened their link and who
+is coming from a private dashboard.
 
-1. A cream envelope with gold trim floats in warm light, with the guest's name on it and a
-   navy wax seal pulsing "tap me".
-2. The tap charges it up — it trembles as golden light leaks out — then the seal **bursts** into
-   glitter with a boom and a camera shake.
-3. The flap flies open and **god rays** pour out; the card rises, then **spins toward you** like
-   an item being revealed, with a shine sweep and a fanfare.
-4. A bright flash, and the invitation lands with a springy bounce and confetti cannons: ivory paper,
-   gold foil, a laurel wreath around the graduate's photo, a ribbon banner, a countdown and a
-   game-style RSVP that celebrates when guests say yes.
-
-| Envelope | The reveal | Invitation |
+| Envelope | Invitation | Dashboard |
 |---|---|---|
-| ![Envelope](docs/screenshots/1-envelope.png) | ![Card reveal](docs/screenshots/3-card-reveal.png) | ![Invitation](docs/screenshots/4-invitation.png) |
-
-All sound (riser, impact, sparkles, fanfare, music box) is synthesized in the browser — no audio
-files — and guests can mute it. Phones that can't do 3D, or have "reduce motion" on, get a lighter
-animated (or still) version. Add `&slowmo=20` to a preview link to watch the reveal in slow motion.
+| ![Envelope](docs/screenshots/2-envelope.png) | ![Invitation](docs/screenshots/4-invitation.png) | ![Dashboard](docs/screenshots/7-dashboard-after.png) |
 
 ## How it works
 
@@ -36,9 +24,7 @@ animated (or still) version. Add `&slowmo=20` to a preview link to watch the rev
 ## Tech stack
 
 - **Next.js 16** (App Router, server actions) with TypeScript
-- **Tailwind CSS 4** for styling, **Framer Motion** for page animations
-- **three.js** with **React Three Fiber** and **drei** for the 3D scenes (loaded only when needed)
-- **Web Audio API** for synthesized sound effects and music
+- **Tailwind CSS 4** for styling, **Framer Motion** for the envelope and confetti animations
 - **Postgres** through **Drizzle ORM**
 - Hosting: **Render** (free web service) and **Neon** Postgres (free tier)
 
@@ -115,8 +101,7 @@ src/
     api/health/            Health check for Render and uptime monitors
     admin/                 Host dashboard (password protected by src/proxy.ts)
     i/[token]/             The guest's invitation page
-      experience/          3D scenes (three/), sound engine, 3D card tilt, device detection
-      Envelope.tsx         2D envelope animation (fallback when 3D isn't available)
+      Envelope.tsx         Sealed-envelope opening animation
       Invitation.tsx       The invitation card
       RsvpForm.tsx         RSVP form + thank-you message
       opengraph-image.tsx  WhatsApp/social link preview image
