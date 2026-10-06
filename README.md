@@ -27,16 +27,31 @@ is coming from a private dashboard.
 - **Postgres** through **Drizzle ORM**
 - Hosting: **Render** (free web service) and **Neon** Postgres (free tier)
 
-## Run it locally
+## Run it on your computer
 
-You need Node.js 20+ and a Postgres database.
+You need [Node.js](https://nodejs.org) 20 or newer (choose the LTS version) and
+[Git](https://git-scm.com).
 
 ```bash
+git clone -b claude/modest-goodall-6vw9ep https://github.com/En135511/bindingsamples.git
+cd bindingsamples
 npm install
-cp .env.example .env          # then fill in DATABASE_URL and ADMIN_PASSWORD
-npm run db:migrate            # creates the tables
-npm run dev                   # http://localhost:3000/admin
+npm run dev
 ```
+
+Open http://localhost:3000/admin and log in with the password **`admin`**.
+
+No database setup is needed. When `DATABASE_URL` isn't set, the app uses a built-in database
+saved in the `.data/` folder. Delete that folder to start over.
+
+To see the invitation on your phone, connect it to the same Wi-Fi and open the **Network**
+address that `npm run dev` prints (e.g. `http://192.168.1.20:3000`). Then open the guest links
+from the dashboard there. Guest links copied from the dashboard use whatever address you opened
+it with.
+
+Optional settings go in a `.env` file (see `.env.example`):
+`ADMIN_PASSWORD` to change the password, and `DATABASE_URL` to use a real Postgres database
+(then run `npm run db:migrate` once).
 
 Other commands: `npm run lint`, `npm run typecheck`, `npm run build`.
 After changing `src/db/schema.ts`, run `npm run db:generate` to create a new migration.

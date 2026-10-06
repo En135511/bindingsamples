@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/setup-local-db.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -12,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "drizzle-orm": "^0.45.3",
     "framer-motion": "^14.0.0",
     "nanoid": "^6.0.2",

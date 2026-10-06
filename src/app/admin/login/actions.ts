@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { expectedSessionValue, isCorrectPassword, SESSION_COOKIE } from "@/lib/session";
 
 export async function login(_prev: string | null, formData: FormData) {
-  if (!process.env.ADMIN_PASSWORD) return "ADMIN_PASSWORD is not set on the server.";
+  if (!expectedSessionValue()) return "ADMIN_PASSWORD is not set on the server.";
   const password = String(formData.get("password") ?? "");
   if (!isCorrectPassword(password)) return "That password isn't right.";
 

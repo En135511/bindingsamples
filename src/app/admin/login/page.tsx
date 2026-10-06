@@ -19,6 +19,11 @@ export default function LoginPage() {
           className="input"
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {process.env.NODE_ENV === "development" && (
+          <p className="text-xs text-stone-400">
+            Running locally: the password is <code>admin</code> unless you set ADMIN_PASSWORD.
+          </p>
+        )}
         <button disabled={pending} className="btn-primary w-full">
           {pending ? "Checking…" : "Log in"}
         </button>
