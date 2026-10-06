@@ -21,18 +21,19 @@ export function Countdown({ startsAtIso }: { startsAtIso: string }) {
   }
 
   const units = [
-    { label: "Days", value: Math.floor(minutesLeft / 1440) },
-    { label: "Hours", value: Math.floor((minutesLeft % 1440) / 60) },
-    { label: "Minutes", value: minutesLeft % 60 },
-  ];
-
+    { id: "days", one: "Day", many: "Days", value: Math.floor(minutesLeft / 1440) },
+    { id: "hours", one: "Hour", many: "Hours", value: Math.floor((minutesLeft % 1440) / 60) },
+    { id: "minutes", one: "Minute", many: "Minutes", value: minutesLeft % 60 },
+  ].map((u) => ({ ...u, label: u.value === 1 ? u.one : u.many }));
   const spoken = units.map((u) => `${u.value} ${u.label.toLowerCase()}`).join(", ");
 
   return (
-    <div className="flex justify-center gap-2.5 sm:gap-4" role="group" aria-label={`Time until the celebration: ${spoken}`}>
+    <div className="flex justify-center gap-2.5 sm:gap-4">
+      {/* Read this instead of the animated tiles, which screen readers skip. */}
+      <p className="sr-only">Time until the celebration: {spoken}.</p>
       {units.map((u) => (
         <div
-          key={u.label}
+          key={u.id}
           aria-hidden="true"
           className="w-[5.25rem] rounded-md bg-navy-900 px-2 pt-3 pb-2 text-gold-300 shadow-[inset_0_0_0_1px_rgba(201,162,77,0.35)] sm:w-24"
         >

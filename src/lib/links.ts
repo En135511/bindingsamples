@@ -24,8 +24,11 @@ export function whatsappShareUrl(guest: Pick<Guest, "name" | "phone" | "inviteTy
   const text =
     `Hi ${addressee(guest)}! 🎓 I'd love for you to celebrate my graduation with me. ` +
     `Here is your personal invitation:\n${link}`;
-  const phone = guest.phone?.replace(/\D/g, "");
-  return `https://wa.me/${phone ?? ""}?text=${encodeURIComponent(text)}`;
+  // wa.me needs the international form (country code, no leading 0). For anything else, leave
+  // the number out: WhatsApp then lets the host pick the contact, instead of "invalid number".
+  const digits = guest.phone?.replace(/\D/g, "") ?? "";
+  const phone = digits.length >= 8 && !digits.startsWith("0") ? digits : "";
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
 
 export function mapsUrl(event: Event) {

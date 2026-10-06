@@ -28,8 +28,29 @@ export function seatsFor(type: InviteType, familySeats?: number) {
 /** The name as written on the invitation: "Aunt Mary", "Mr. and Mrs. Otieno", "John Otieno and family". */
 export function addressee(guest: { name: string; inviteType: InviteType }) {
   const name = guest.name.trim();
-  if (guest.inviteType === "family" && !/\bfamily\b/i.test(name)) return `${name} and family`;
+  if (guest.inviteType === "family") {
+    // "The Wanjiru Family" reads better as "Wanjiru Family" after "Dear" or "Hi".
+    if (/\bfamily\b/i.test(name)) return name.replace(/^the\s+/i, "");
+    return `${name} and family`;
+  }
   return name;
+}
+
+/** How to say "you" to this invitation: "you", "you both" or "you all". */
+export function youFor(type: InviteType) {
+  return type === "couple" ? "you both" : type === "family" ? "you all" : "you";
+}
+
+const HONORIFIC = "(?:Mr|Mrs|Ms|Miss|Mx|Dr|Prof|Rev|Hon|Sir|Lady)\\.?";
+
+/**
+ * Non-breaking spaces so a wrapped greeting never splits "Mr. and Mrs." or "Mrs. Otieno".
+ * For display only — the stored name is unchanged.
+ */
+export function keepHonorificsTogether(text: string) {
+  return text
+    .replace(new RegExp(`\\b(${HONORIFIC})\\s+`, "g"), "$1\u00a0")
+    .replace(new RegExp(`\\s(and|&)\\s(?=${HONORIFIC})`, "g"), "\u00a0$1\u00a0");
 }
 
 /** Whether the invitation speaks to more than one person ("you all", "accept" vs "accepts"). */

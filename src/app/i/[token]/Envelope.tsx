@@ -33,7 +33,8 @@ export function Envelope({
       <motion.button
         type="button"
         onClick={onOpen}
-        disabled={opening}
+        // aria-disabled (not disabled) keeps keyboard focus on the button while it opens.
+        aria-disabled={opening}
         aria-label="Open your invitation"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

@@ -27,16 +27,22 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
   const baseUrl = await getBaseUrl();
 
   const attending = guestList.filter((g) => g.status === "attending");
-  const stats = [
+  const declined = guestList.filter((g) => g.status === "declined");
+  const awaiting = guestList.filter((g) => g.status === "pending");
+  const seats = (list: typeof guestList) => list.reduce((sum, g) => sum + g.maxPartySize, 0);
+  const seatLabel = (n: number) => `${n} seat${n === 1 ? "" : "s"}`;
+  // Invitations and people side by side, so seats invited = attending + declined + awaiting.
+  const stats: { label: string; value: number; sub?: string }[] = [
     { label: "Invitations", value: guestList.length },
-    { label: "Seats invited", value: guestList.reduce((sum, g) => sum + g.maxPartySize, 0) },
-    { label: "Opened", value: guestList.filter((g) => g.openCount > 0).length },
+    { label: "Seats invited", value: seats(guestList) },
+    { label: "Invitations opened", value: guestList.filter((g) => g.openCount > 0).length },
     {
       label: "People attending",
       value: attending.reduce((sum, g) => sum + (g.partySize ?? g.maxPartySize), 0),
+      sub: `${attending.length} invitation${attending.length === 1 ? "" : "s"}`,
     },
-    { label: "Declined", value: guestList.filter((g) => g.status === "declined").length },
-    { label: "Awaiting reply", value: guestList.filter((g) => g.status === "pending").length },
+    { label: "Declined", value: declined.length, sub: seatLabel(seats(declined)) },
+    { label: "Awaiting reply", value: awaiting.length, sub: seatLabel(seats(awaiting)) },
   ];
 
   return (
@@ -59,6 +65,7 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
           <div key={s.label} className="rounded-xl bg-white p-4 shadow-sm">
             <p className="text-2xl font-semibold">{s.value}</p>
             <p className="text-xs text-stone-500">{s.label}</p>
+            {s.sub && <p className="text-xs text-stone-400">{s.sub}</p>}
           </div>
         ))}
       </section>
@@ -76,8 +83,8 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
 
         {guestList.length > 0 && (
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="border-b border-stone-200 text-xs text-stone-500 uppercase">
+            <table className="block w-full text-left text-sm sm:table sm:min-w-[760px]">
+              <thead className="hidden border-b border-stone-200 text-xs text-stone-500 uppercase sm:table-header-group">
                 <tr>
                   <th className="py-2 pr-3 font-medium">Invitation</th>
                   <th className="py-2 pr-3 font-medium">Opened</th>
@@ -85,7 +92,7 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
                   <th className="py-2 font-medium">Send</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="block sm:table-row-group">
                 {guestList.map((guest) => {
                   const link = baseUrl + invitationPath(guest);
                   return (

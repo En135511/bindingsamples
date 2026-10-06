@@ -81,9 +81,45 @@ export async function addGuests(
   await requireAdmin();
   const parsed = parseGuestLines(String(formData.get("guests") ?? ""));
   if (parsed.length === 0) return { error: "Add at least one name." };
-  await db.insert(guests).values(parsed.map((g) => ({ ...g, eventId, token: newToken() })));
+
+  // Add nothing if any line has something we couldn't read, so no seat count is silently wrong.
+  const unclear = parsed.filter((g) => g.unrecognized.length > 0);
+  if (unclear.length > 0) {
+    const examples = unclear
+      .slice(0, 3)
+      .map((g) => `line ${g.line}: “${g.unrecognized.join(", ")}”`)
+      .join("; ");
+    return {
+      error:
+        `Nothing was added — couldn't understand ${examples}${unclear.length > 3 ? " and more" : ""}. ` +
+        "After the name use a WhatsApp number with country code, a number of seats, or couple / family 5.",
+    };
+  }
+
+  await db.insert(guests).values(
+    parsed.map(({ name, phone, inviteType, maxPartySize }) => ({
+      name: name.slice(0, 120),
+      phone,
+      inviteType,
+      maxPartySize,
+      eventId,
+      token: newToken(),
+    })),
+  );
   revalidatePath(`/admin/events/${eventId}`);
-  return { ok: `Added ${parsed.length} invitation${parsed.length === 1 ? "" : "s"}.` };
+
+  const count = (type: string) => parsed.filter((g) => g.inviteType === type).length;
+  const parts = [
+    [count("single"), "one person", "one person"],
+    [count("couple"), "couple", "couples"],
+    [count("family"), "family", "families"],
+  ]
+    .filter(([n]) => n)
+    .map(([n, one, many]) => `${n} ${n === 1 ? one : many}`);
+  const seats = parsed.reduce((sum, g) => sum + g.maxPartySize, 0);
+  return {
+    ok: `Added ${parsed.length} invitation${parsed.length === 1 ? "" : "s"}: ${parts.join(", ")} · ${seats} seat${seats === 1 ? "" : "s"}.`,
+  };
 }
 
 /** Add one invitation from the form: name, invite type, family size, WhatsApp number. */
@@ -128,14 +164,19 @@ export async function updateGuest(eventId: number, guestId: number, formData: Fo
   const currentSeats = guest.inviteType === "family" ? guest.maxPartySize : DEFAULT_FAMILY_SEATS;
   const maxPartySize = seatsFor(inviteType, seatsField === null ? currentSeats : Number(seatsField));
 
+  // If the seats change after the guest accepted, their invitation now carries the new count.
+  // Otherwise keep their answer (older RSVPs could be for fewer people), capped to the seats.
+  const seatsChanged = maxPartySize !== guest.maxPartySize;
+  const partySize =
+    guest.status !== "attending"
+      ? guest.partySize
+      : seatsChanged || guest.partySize == null
+        ? maxPartySize
+        : Math.min(guest.partySize, maxPartySize);
+
   await db
     .update(guests)
-    .set({
-      name,
-      inviteType,
-      maxPartySize,
-      partySize: guest.status === "attending" ? maxPartySize : guest.partySize,
-    })
+    .set({ name, inviteType, maxPartySize, partySize })
     .where(eq(guests.id, guestId));
   revalidatePath(`/admin/events/${eventId}`);
 }

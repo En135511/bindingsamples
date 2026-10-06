@@ -6,7 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { guests } from "@/db/schema";
 import { dateParts, formatLongDate, formatTime } from "@/lib/datetime";
-import { addressee, isPlural } from "@/lib/invites";
+import { addressee, isPlural, youFor } from "@/lib/invites";
 import { eventInstants, getBaseUrl, googleCalendarUrl, mapsUrl } from "@/lib/links";
 import { getInvitation } from "./data";
 import { Invitation } from "./Invitation";
@@ -61,7 +61,10 @@ export default async function InvitationPage({ params, searchParams }: PageProps
       guest={{
         addressee: addressee(guest),
         plural: isPlural(guest.inviteType),
+        you: youFor(guest.inviteType),
         seats: guest.maxPartySize,
+        // Older RSVPs could be for fewer people than the seats; show what they answered.
+        acceptedSeats: guest.status === "attending" ? (guest.partySize ?? guest.maxPartySize) : null,
         status: guest.status,
         note: guest.note,
       }}

@@ -61,7 +61,7 @@ export function AddGuestForm({ action }: { action: Action }) {
           {INVITE_TYPES.map((t) => (
             <label
               key={t}
-              className={`cursor-pointer rounded-lg border px-3 py-2 text-center text-sm transition ${
+              className={`cursor-pointer rounded-lg border px-3 py-2 text-center text-sm transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy-700 has-[:focus-visible]:ring-offset-2 ${
                 type === t ? "border-navy-900 bg-navy-900 text-white" : "border-stone-300 hover:border-stone-400"
               }`}
             >
@@ -108,7 +108,7 @@ export function AddGuestForm({ action }: { action: Action }) {
           </label>
         )}
         <label className={type === "family" ? "" : "sm:col-span-2"}>
-          <span className="label">WhatsApp number (optional)</span>
+          <span className="label">WhatsApp number with country code (optional)</span>
           <input
             name="phone"
             type="tel"
@@ -144,6 +144,7 @@ export function BulkAddGuests({ action }: { action: Action }) {
   const [state, formAction, pending] = useActionState(action, null);
   const formRef = useRef<HTMLFormElement>(null);
 
+  // Clear the list only once it has been added; if something couldn't be read, keep it to fix.
   useEffect(() => {
     if (state?.ok) formRef.current?.reset();
   }, [state]);
@@ -153,18 +154,30 @@ export function BulkAddGuests({ action }: { action: Action }) {
       <summary className="cursor-pointer text-sm font-medium text-stone-700 select-none">
         Add many at once
       </summary>
-      <form ref={formRef} action={formAction} className="mt-3 space-y-2">
+      <form
+        ref={formRef}
+        // Submitted by hand (not <form action>), which would empty the box even when nothing was added.
+        onSubmit={(e) => {
+          e.preventDefault();
+          const data = new FormData(e.currentTarget);
+          startTransition(() => formAction(data));
+        }}
+        className="mt-3 space-y-2"
+      >
         <textarea
           name="guests"
           rows={5}
           className="input font-mono"
-          placeholder={"Aunt Mary, +254 712 345678\nMr. and Mrs. Otieno\nJohn Kamau and family, 5\nThe Wanjiru Family, 3"}
+          placeholder={"Aunt Mary, +254 712 345678\nMr. and Mrs. Otieno\nJohn Kamau and family, 5\nWanjiru Family, 3"}
         />
-        <p className="text-xs text-stone-500">
-          One invitation per line. Names with “and family” (or “Family”) become a family, names with
-          “and” or “&amp;” become a couple, everyone else is one person. After the name you can add a
-          WhatsApp number, a number of seats for a family, or a type: <code>couple</code>,{" "}
-          <code>family 5</code>. You can change any of it in the list below.
+        <p className="text-xs leading-relaxed text-stone-500">
+          One invitation per line. After the name you can add, separated by commas, a WhatsApp number
+          with country code and/or a number of seats — e.g. <code>John Kamau, +254 712 345678, 5</code>.
+          Names with “and family” or “Family” become a family and names with “and” or “&amp;” a couple;
+          otherwise the number decides (1 = one person, 2 = couple, 3 or more = family). You can also
+          write <code>couple</code> or <code>family of 5</code>. If a line can&apos;t be read, nothing
+          is added and you&apos;ll be told which line. Names, types and seats can be changed in the list
+          below.
         </p>
         <div className="flex items-center gap-4">
           <button disabled={pending} className="btn-secondary">

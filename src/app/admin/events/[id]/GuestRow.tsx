@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import type { Guest } from "@/db/schema";
 import {
   addressee,
+  DEFAULT_FAMILY_SEATS,
   INVITE_TYPE_LABELS,
   INVITE_TYPES,
   type InviteType,
@@ -52,6 +53,10 @@ export function GuestRow({
     startTransition(() => updateGuest(eventId, guest.id, data));
   };
   const who = addressee(guest);
+  // What the seats dropdown starts on: the stored count for a family (within the offered range),
+  // or the default family size right after switching to "Family" — matching what the server saves.
+  const familySeats =
+    guest.inviteType === "family" ? Math.min(Math.max(guest.maxPartySize, 2), MAX_SEATS) : DEFAULT_FAMILY_SEATS;
 
   async function copy() {
     await navigator.clipboard.writeText(link);
@@ -65,8 +70,8 @@ export function GuestRow({
   }
 
   return (
-    <tr className={`border-b border-stone-100 align-top ${pending ? "opacity-50" : ""}`}>
-      <td className="py-3 pr-3">
+    <tr className={`block border-b border-stone-100 py-3 align-top sm:table-row sm:py-0 ${pending ? "opacity-50" : ""}`}>
+      <td className="block sm:table-cell sm:py-3 sm:pr-3">
         <form
           ref={form}
           onSubmit={(e) => {
@@ -79,10 +84,21 @@ export function GuestRow({
             name="name"
             defaultValue={guest.name}
             maxLength={120}
-            aria-label="Name on the invitation"
-            onBlur={(e) => e.currentTarget.value.trim() !== guest.name && save()}
+            required
+            aria-label="Name on the invitation (click to edit)"
+            title="Click to edit the name"
+            onBlur={(e) => {
+              const value = e.currentTarget.value.trim();
+              // An empty name isn't saved, so show the saved one again instead of a blank field.
+              if (!value) {
+                e.currentTarget.value = guest.name;
+                return;
+              }
+              e.currentTarget.value = value;
+              if (value !== guest.name) save();
+            }}
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), e.currentTarget.blur())}
-            className="-mx-1 w-full rounded border border-transparent px-1 py-0.5 font-medium hover:border-stone-200 focus:border-stone-300 focus:outline-none"
+            className="w-full rounded border border-stone-200 bg-white px-2 py-1 font-medium focus:border-navy-700 focus:ring-2 focus:ring-navy-700/20 focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -103,9 +119,9 @@ export function GuestRow({
             </select>
             {type === "family" ? (
               <select
-                key={guest.maxPartySize}
+                key={familySeats}
                 name="seats"
-                defaultValue={guest.maxPartySize}
+                defaultValue={familySeats}
                 onChange={save}
                 aria-label="Seats"
                 className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
@@ -133,7 +149,8 @@ export function GuestRow({
           </p>
         )}
       </td>
-      <td className="py-3 pr-3 text-stone-600" suppressHydrationWarning>
+      <td className="inline-block py-1 pr-3 text-stone-600 sm:table-cell sm:py-3" suppressHydrationWarning>
+        <span className="text-xs text-stone-400 sm:hidden">Opened: </span>
         {guest.openCount > 0 ? (
           <>
             {relative(guest.lastOpenedAt)}
@@ -145,24 +162,30 @@ export function GuestRow({
           "Not yet"
         )}
       </td>
-      <td className="py-3 pr-3">
+      <td className="inline-block py-1 pr-3 sm:table-cell sm:py-3">
         <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[guest.status]}`}>
           {STATUS_LABEL[guest.status]}
           {guest.status === "attending" && guest.partySize ? ` · ${guest.partySize}` : ""}
         </span>
       </td>
-      <td className="py-3">
+      <td className="block pt-2 sm:table-cell sm:py-3">
         <div className="flex flex-wrap gap-2">
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noreferrer"
-            className="btn-secondary border-green-600 text-green-700"
+            className="btn-secondary flex-1 border-green-600 text-green-700 sm:flex-none"
           >
             WhatsApp
           </a>
           <button onClick={copy} className="btn-secondary">
-            {copied ? "Copied!" : "Copy link"}
+            {copied ? (
+              "Copied!"
+            ) : (
+              <>
+                Copy<span className="hidden sm:inline">&nbsp;link</span>
+              </>
+            )}
           </button>
           <a href={`${link}?preview=1`} target="_blank" rel="noreferrer" className="btn-secondary">
             Preview

@@ -15,11 +15,23 @@ is coming from a private dashboard.
 
 1. Go to `/admin`, log in with your password and create your event.
    Upload a photo of yourself under **Your photo** on the event page.
-2. Add guests, one per line: `Aunt Mary, +254 712 345678, 2` (name, optional WhatsApp number,
-   optional number of seats).
-3. Press **WhatsApp** next to a guest. WhatsApp opens with a ready-made message and their link.
-   The link shows a preview card with their name, your name and the date.
-4. Watch the dashboard as people open their invitations and RSVP.
+2. Add invitations. For each one choose who it's for — you decide the seats, guests only
+   accept or decline:
+   - **One person** — "Dear Aunt Mary," (1 seat)
+   - **Couple** — write it as you'd address them, e.g. "Mr. and Mrs. Otieno" (2 seats)
+   - **Family** — "John Kamau **and family**", with as many seats as you choose
+
+   Or paste a list under **Add many at once**, one per line, e.g.
+   `John Kamau and family, +254 712 345678, 5`. Anything it can't read is reported and nothing is
+   added until it's fixed. Names, types and seats can be changed in the list afterwards.
+3. Press **WhatsApp** next to a guest. WhatsApp opens with a ready-made message and their link
+   (save numbers with the country code, e.g. +254…). The link shows a preview card with their
+   name, your name and the date.
+4. Watch the dashboard as people open their invitations and RSVP: it shows seats invited,
+   people attending and the seats still awaiting a reply.
+
+The invitation adapts to phones, tablets and computers — on a computer your photo fills the
+left half and stays in view while the details scroll past.
 
 ## Tech stack
 

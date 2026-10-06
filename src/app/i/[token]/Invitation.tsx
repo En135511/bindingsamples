@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import { AnimatePresence, motion, MotionConfig, useReducedMotion } from "framer-motion";
 import { MortarboardIcon } from "@/components/MortarboardIcon";
 import type { RsvpStatus } from "@/db/schema";
 import { Confetti } from "./Confetti";
 import { Countdown } from "./Countdown";
 import { Envelope } from "./Envelope";
+import { keepHonorificsTogether } from "@/lib/invites";
 import { RsvpForm } from "./RsvpForm";
 import { GoldDivider, ParallaxImage, Reveal } from "./ScrollEffects";
 
@@ -15,6 +17,10 @@ export type InvitationGuest = {
   addressee: string;
   /** Speaks to more than one person (a couple or a family). */
   plural: boolean;
+  /** "you", "you both" or "you all". */
+  you: string;
+  /** Seats an accepted RSVP holds (older answers could be fewer than `seats`). */
+  acceptedSeats: number | null;
   /** Seats this invitation carries, set by the host. */
   seats: number;
   status: RsvpStatus;
@@ -54,6 +60,8 @@ export function Invitation({
 }) {
   const reduceMotion = useReducedMotion();
   const [stage, setStage] = useState<"sealed" | "opening" | "open">("sealed");
+  // Start downloading the photo while the guest is still on the envelope (emits a <link rel=preload>).
+  if (event.photoUrl) preload(event.photoUrl, { as: "image" });
 
   function open() {
     if (stage !== "sealed") return;
@@ -98,31 +106,40 @@ function InvitationCard({
   event: InvitationEvent;
 }) {
   const honoree = firstName(event.honoreeName);
+  // Move focus to the card when it appears, so keyboard and screen-reader users land on it.
+  const cardRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    cardRef.current?.focus({ preventScroll: true });
+  }, []);
 
   return (
     <article
+      ref={cardRef}
+      tabIndex={-1}
+      aria-labelledby="honoree-name"
       // Phones: one column. Tablets: a wider single column. Computers: photo panel + details side by side.
-      className="mx-auto max-w-[36rem] overflow-clip rounded-md shadow-[0_30px_80px_rgba(0,0,0,0.5)] md:max-w-[46rem] lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:overflow-visible"
+      className="mx-auto max-w-[36rem] overflow-clip rounded-md focus:outline-none shadow-[0_30px_80px_rgba(0,0,0,0.5)] md:max-w-[46rem] xl:grid xl:max-w-6xl xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:overflow-visible"
     >
       <PhotoPanel event={event} />
 
-      <div className="paper-grain relative p-2 text-ink lg:rounded-r-md">
+      <div className="paper-grain relative p-2 text-ink xl:rounded-r-md">
         <div className="pointer-events-none absolute inset-2 border border-gold-500/60" />
         <div className="pointer-events-none absolute inset-3.5 border-2 border-gold-500/80" />
 
-        <div className="relative space-y-12 px-6 py-14 text-center sm:px-12 sm:py-16 md:px-16 lg:space-y-14 lg:px-16 lg:py-20">
+        <div className="relative space-y-12 px-6 py-14 text-center sm:px-12 sm:py-16 md:px-16 xl:space-y-14 xl:py-20">
           <Reveal as="header" className="space-y-4">
-            <p className="font-script text-[clamp(2.4rem,7vw,3.4rem)] leading-tight text-balance text-navy-800">
-              Dear {guest.addressee},
+            {/* The name is one unit: it moves under "Dear" as a whole rather than splitting. */}
+            <p className="font-script text-[clamp(1.9rem,8.5vw,3.4rem)] leading-tight text-balance text-navy-800 xl:text-[clamp(2.4rem,3.6vw,3.4rem)]">
+              Dear <span className="inline-block">{keepHonorificsTogether(guest.addressee)},</span>
             </p>
             <p className="mx-auto max-w-[30ch] font-body text-[clamp(1.2rem,2.6vw,1.4rem)] leading-snug text-balance text-stone-700 italic">
-              together with family and friends, {guest.plural ? "you are all" : "you are"} warmly invited to
+              together with family and friends, {guest.you === "you" ? "you are" : `you are ${guest.you.replace("you ", "")}`} warmly invited to
               celebrate the graduation of
             </p>
           </Reveal>
 
           <Reveal className="space-y-3">
-            <h1 className="font-serif text-[clamp(2.6rem,7.5vw,4.25rem)] leading-[1.05] font-medium tracking-tight text-balance text-navy-900">
+            <h1 id="honoree-name" className="font-serif text-[clamp(2.6rem,7.5vw,4.25rem)] leading-[1.05] font-medium tracking-tight text-balance text-navy-900">
               {event.honoreeName}
             </h1>
             {event.degree && (
@@ -131,7 +148,7 @@ function InvitationCard({
               </p>
             )}
             {event.school && (
-              <p className="text-[11px] font-medium tracking-[0.3em] text-balance text-stone-500 uppercase sm:text-xs">
+              <p className="text-[11px] font-medium tracking-[0.3em] text-balance text-stone-600 uppercase sm:text-xs">
                 {event.school}
               </p>
             )}
@@ -144,9 +161,9 @@ function InvitationCard({
               {event.date.weekday}
             </p>
             <div className="px-1 font-serif">
-              <p className="text-xs tracking-[0.3em] text-gold-600 uppercase">{event.date.month}</p>
+              <p className="text-xs tracking-[0.3em] text-gold-700 uppercase">{event.date.month}</p>
               <p className="text-[clamp(3.5rem,11vw,4.75rem)] leading-none font-medium">{event.date.day}</p>
-              <p className="text-sm tracking-[0.3em] text-gold-600">{event.date.year}</p>
+              <p className="text-sm tracking-[0.3em] text-gold-700">{event.date.year}</p>
             </div>
             <p className="border-y border-gold-500/60 py-3 text-[11px] font-medium tracking-[0.25em] uppercase sm:text-xs">
               {event.time}
@@ -155,7 +172,7 @@ function InvitationCard({
 
           {(event.venueName || event.venueAddress) && (
             <Reveal className="space-y-2">
-              <p className="text-[11px] font-medium tracking-[0.3em] text-gold-600 uppercase">Where</p>
+              <p className="text-[11px] font-medium tracking-[0.3em] text-gold-700 uppercase">Where</p>
               {event.venueName && (
                 <p className="font-serif text-[clamp(1.6rem,4vw,2rem)] leading-tight text-balance text-navy-900">
                   {event.venueName}
@@ -169,7 +186,7 @@ function InvitationCard({
                   href={event.mapUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gold-500/60 px-4 py-1.5 text-sm font-medium text-gold-600 transition hover:bg-gold-500/10"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gold-500/60 px-4 py-1.5 text-sm font-medium text-gold-700 transition hover:bg-gold-500/10"
                 >
                   View on map <span aria-hidden="true">→</span>
                 </a>
@@ -179,7 +196,7 @@ function InvitationCard({
 
           {event.dressCode && (
             <Reveal className="space-y-1">
-              <p className="text-[11px] font-medium tracking-[0.3em] text-gold-600 uppercase">Attire</p>
+              <p className="text-[11px] font-medium tracking-[0.3em] text-gold-700 uppercase">Attire</p>
               <p className="font-body text-xl text-pretty text-stone-700">{event.dressCode}</p>
             </Reveal>
           )}
@@ -245,13 +262,13 @@ function InvitationCard({
  */
 function PhotoPanel({ event }: { event: InvitationEvent }) {
   return (
-    <div className="relative bg-navy-900 lg:rounded-l-md">
-      <div className="lg:sticky lg:top-0 lg:flex lg:h-dvh lg:max-h-[64rem] lg:flex-col">
+    <div className="relative bg-navy-900 xl:rounded-l-md">
+      <div className="xl:sticky xl:top-0 xl:flex xl:h-dvh xl:max-h-[64rem] xl:flex-col">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="relative aspect-[4/5] overflow-hidden bg-navy-800 md:aspect-square lg:aspect-auto lg:min-h-0 lg:flex-1 lg:rounded-tl-md"
+          className="relative aspect-[4/5] overflow-hidden bg-navy-800 md:aspect-square xl:aspect-auto xl:min-h-0 xl:flex-1 xl:rounded-tl-md"
         >
           {event.photoUrl ? (
             <ParallaxImage

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   animate,
   motion,
@@ -52,7 +52,8 @@ export function GoldDivider({ className = "" }: { className?: string }) {
     <div className={`flex items-center justify-center gap-3 text-gold-500 ${className}`} aria-hidden="true">
       <motion.span {...line} className="h-px w-20 origin-right bg-gradient-to-r from-transparent to-gold-500 sm:w-28" />
       <motion.span
-        initial={reduce ? false : { scale: 0, rotate: 0 }}
+        // With reduce-motion, start as the finished diamond (rotated), not an unturned square.
+        initial={reduce ? { scale: 1, rotate: 45 } : { scale: 0, rotate: 0 }}
         whileInView={{ scale: 1, rotate: 45 }}
         viewport={{ once: true, amount: 1 }}
         transition={{ duration: 0.6, delay: 0.3 }}
@@ -72,15 +73,19 @@ export function CountUp({ value, className }: { value: number; className?: strin
   const rounded = useTransform(count, (v) => Math.round(v).toString());
 
   useEffect(() => {
-    if (!inView) return;
-    if (reduce) {
-      count.set(value);
-      return;
-    }
+    if (!inView || reduce) return;
     const controls = animate(count, value, { duration: 1.6, ease: [0.16, 1, 0.3, 1] });
     return () => controls.stop();
   }, [inView, reduce, value, count]);
 
+  // With reduce-motion, just show the number — from the very first paint.
+  if (reduce) {
+    return (
+      <span ref={ref} className={className}>
+        {value}
+      </span>
+    );
+  }
   return (
     <motion.span ref={ref} className={className}>
       {rounded}
@@ -91,18 +96,27 @@ export function CountUp({ value, className }: { value: number; className?: strin
 /** An image that drifts and settles gently as the page scrolls, for depth. */
 export function ParallaxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const reduce = useReducedMotion();
+  // Fade in once the image has actually loaded (it may already be cached from the preload).
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    // An image cached before hydration fires no load event.
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
   const { scrollY } = useScroll();
   // A gentle zoom-out as the page scrolls; never moves the photo, so nothing is uncovered.
   const scale = useTransform(scrollY, [0, 900], [1.05, 1], { clamp: true });
   return (
     <motion.img
+      ref={imgRef}
       src={src}
+      onLoad={() => setLoaded(true)}
       alt={alt}
       className={className}
       style={reduce ? undefined : { scale }}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      animate={{ opacity: loaded ? 1 : 0 }}
+      transition={{ duration: 0.8 }}
     />
   );
 }

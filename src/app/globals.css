@@ -17,6 +17,8 @@
   --color-gold-400: #dcbc6e;
   --color-gold-500: #c9a24d;
   --color-gold-600: #a8822f;
+  /* Deep antique gold for small text on cream (5:1 contrast) */
+  --color-gold-700: #866520;
   --color-paper: #fbf7ee;
   --color-ink: #1d2433;
 }
