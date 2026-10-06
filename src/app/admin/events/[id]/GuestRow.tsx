@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { Guest } from "@/db/schema";
-import { deleteGuest, updateGuestSeats } from "../../actions";
+import {
+  addressee,
+  INVITE_TYPE_LABELS,
+  INVITE_TYPES,
+  type InviteType,
+  MAX_SEATS,
+} from "@/lib/invites";
+import { deleteGuest, updateGuest } from "../../actions";
 
 const STATUS_STYLE = {
   pending: "bg-stone-100 text-stone-600",
@@ -35,6 +42,16 @@ export function GuestRow({
 }) {
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [type, setType] = useState<InviteType>(guest.inviteType);
+  const form = useRef<HTMLFormElement>(null);
+  // Submit by hand rather than via <form action>: React resets a form after its action,
+  // which would put the type dropdown back to its old value on screen.
+  const save = () => {
+    if (!form.current) return;
+    const data = new FormData(form.current);
+    startTransition(() => updateGuest(eventId, guest.id, data));
+  };
+  const who = addressee(guest);
 
   async function copy() {
     await navigator.clipboard.writeText(link);
@@ -43,37 +60,78 @@ export function GuestRow({
   }
 
   function remove() {
-    if (!confirm(`Remove ${guest.name}? Their link will stop working.`)) return;
+    if (!confirm(`Remove ${who}? Their link will stop working.`)) return;
     startTransition(() => deleteGuest(eventId, guest.id));
   }
 
   return (
     <tr className={`border-b border-stone-100 align-top ${pending ? "opacity-50" : ""}`}>
       <td className="py-3 pr-3">
-        <p className="font-medium">{guest.name}</p>
+        <form
+          ref={form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            save();
+          }}
+          className="space-y-1.5"
+        >
+          <input
+            name="name"
+            defaultValue={guest.name}
+            maxLength={120}
+            aria-label="Name on the invitation"
+            onBlur={(e) => e.currentTarget.value.trim() !== guest.name && save()}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), e.currentTarget.blur())}
+            className="-mx-1 w-full rounded border border-transparent px-1 py-0.5 font-medium hover:border-stone-200 focus:border-stone-300 focus:outline-none"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              name="inviteType"
+              value={type}
+              onChange={(e) => {
+                setType(e.target.value as InviteType);
+                save();
+              }}
+              aria-label="Invitation type"
+              className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
+            >
+              {INVITE_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {INVITE_TYPE_LABELS[t]}
+                </option>
+              ))}
+            </select>
+            {type === "family" ? (
+              <select
+                key={guest.maxPartySize}
+                name="seats"
+                defaultValue={guest.maxPartySize}
+                onChange={save}
+                aria-label="Seats"
+                className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
+              >
+                {Array.from({ length: MAX_SEATS - 1 }, (_, i) => i + 2).map((n) => (
+                  <option key={n} value={n}>
+                    {n} seats
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="text-xs text-stone-400">
+                {guest.maxPartySize} seat{guest.maxPartySize === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-stone-500">
+            Reads “<span className="font-serif italic">Dear {who},</span>”
+          </p>
+        </form>
         {guest.phone && <p className="text-xs text-stone-400">{guest.phone}</p>}
         {guest.note && (
           <p className="mt-1 max-w-xs text-xs whitespace-pre-line text-stone-600 italic">
             “{guest.note}”
           </p>
         )}
-      </td>
-      <td className="py-3 pr-3">
-        <form action={(fd) => startTransition(() => updateGuestSeats(eventId, guest.id, fd))}>
-          <select
-            name="maxPartySize"
-            defaultValue={guest.maxPartySize}
-            onChange={(e) => e.currentTarget.form?.requestSubmit()}
-            className="rounded border border-stone-200 bg-white px-1 py-0.5"
-            aria-label="Seats"
-          >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </form>
       </td>
       <td className="py-3 pr-3 text-stone-600" suppressHydrationWarning>
         {guest.openCount > 0 ? (

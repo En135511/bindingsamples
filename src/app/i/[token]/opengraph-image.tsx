@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { formatLongDate } from "@/lib/datetime";
+import { addressee } from "@/lib/invites";
 import { photoDataUrl } from "@/lib/photos";
 import { getInvitation } from "./data";
 
@@ -11,7 +12,7 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: Promise<{ token: string }> }) {
   const invitation = await getInvitation((await params).token);
   const honoree = invitation?.event.honoreeName ?? "";
-  const guest = invitation?.guest.name ?? "";
+  const guest = invitation ? addressee(invitation.guest) : "";
   const date = invitation ? formatLongDate(invitation.event.startsAt) : "";
   const classYear = invitation?.event.classYear;
   const photo = invitation?.event.photoUpdatedAt ? await photoDataUrl(invitation.event.id) : null;

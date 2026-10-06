@@ -8,6 +8,8 @@ import { db } from "@/db";
 import { eventPhotos, events, guests } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { isValidTimeZone } from "@/lib/datetime";
+import { parseGuestLines } from "@/lib/guest-lines";
+import { addressee, DEFAULT_FAMILY_SEATS, isInviteType, seatsFor } from "@/lib/invites";
 import { MAX_PHOTO_BYTES, PHOTO_TYPES } from "@/lib/photos";
 
 // Unambiguous characters only, so links survive being read aloud or retyped.
@@ -71,31 +73,6 @@ export async function updateEvent(
   return { ok: "Saved." };
 }
 
-const PHONE = /^\+?[\d\s().-]{6,}$/;
-const SEATS = /^\d{1,2}$/;
-
-/**
- * One guest per line: "Name", optionally followed by a WhatsApp number and/or
- * number of seats, separated by commas — e.g. "Aunt Mary, +254 712 345678, 2".
- */
-function parseGuestLines(text: string) {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [name, ...rest] = line.split(",").map((p) => p.trim());
-      let phone: string | null = null;
-      let maxPartySize = 1;
-      for (const part of rest) {
-        if (SEATS.test(part)) maxPartySize = Math.max(1, Number(part));
-        else if (PHONE.test(part)) phone = part;
-      }
-      return { name, phone, maxPartySize };
-    })
-    .filter((g) => g.name);
-}
-
 export async function addGuests(
   eventId: number,
   _prev: FormState,
@@ -106,17 +83,60 @@ export async function addGuests(
   if (parsed.length === 0) return { error: "Add at least one name." };
   await db.insert(guests).values(parsed.map((g) => ({ ...g, eventId, token: newToken() })));
   revalidatePath(`/admin/events/${eventId}`);
-  return { ok: `Added ${parsed.length} guest${parsed.length === 1 ? "" : "s"}.` };
+  return { ok: `Added ${parsed.length} invitation${parsed.length === 1 ? "" : "s"}.` };
 }
 
-export async function updateGuestSeats(eventId: number, guestId: number, formData: FormData) {
+/** Add one invitation from the form: name, invite type, family size, WhatsApp number. */
+export async function addGuest(
+  eventId: number,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
   await requireAdmin();
-  const seats = Number(formData.get("maxPartySize"));
-  if (!Number.isInteger(seats) || seats < 1 || seats > 99) return;
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Please enter who the invitation is for." };
+  const inviteType = formData.get("inviteType");
+  if (!isInviteType(inviteType)) return { error: "Please choose who the invitation is for." };
+  const phone = String(formData.get("phone") ?? "").trim() || null;
+  await db.insert(guests).values({
+    eventId,
+    name: name.slice(0, 120),
+    phone,
+    inviteType,
+    maxPartySize: seatsFor(inviteType, Number(formData.get("seats"))),
+    token: newToken(),
+  });
+  revalidatePath(`/admin/events/${eventId}`);
+  return { ok: `Added ${addressee({ name, inviteType })}.` };
+}
+
+/** Change a guest's name, invite type and/or seats. Accepted invitations keep counting all seats. */
+export async function updateGuest(eventId: number, guestId: number, formData: FormData) {
+  await requireAdmin();
+  const [guest] = await db
+    .select()
+    .from(guests)
+    .where(and(eq(guests.id, guestId), eq(guests.eventId, eventId)));
+  if (!guest) return;
+
+  const nameField = formData.get("name");
+  const name = typeof nameField === "string" && nameField.trim() ? nameField.trim().slice(0, 120) : guest.name;
+  const typeField = formData.get("inviteType");
+  const inviteType = isInviteType(typeField) ? typeField : guest.inviteType;
+  const seatsField = formData.get("seats");
+  // Switching to "family" without choosing a size starts from the default family size.
+  const currentSeats = guest.inviteType === "family" ? guest.maxPartySize : DEFAULT_FAMILY_SEATS;
+  const maxPartySize = seatsFor(inviteType, seatsField === null ? currentSeats : Number(seatsField));
+
   await db
     .update(guests)
-    .set({ maxPartySize: seats })
-    .where(and(eq(guests.id, guestId), eq(guests.eventId, eventId)));
+    .set({
+      name,
+      inviteType,
+      maxPartySize,
+      partySize: guest.status === "attending" ? maxPartySize : guest.partySize,
+    })
+    .where(eq(guests.id, guestId));
   revalidatePath(`/admin/events/${eventId}`);
 }
 

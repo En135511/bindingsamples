@@ -1,4 +1,5 @@
 import { customType, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import type { InviteType } from "../lib/invites";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
@@ -47,6 +48,9 @@ export const guests = pgTable("guests", {
   name: text("name").notNull(),
   phone: text("phone"),
   token: text("token").notNull().unique(),
+  // "single" | "couple" | "family" — decides how the invitation is addressed.
+  inviteType: text("invite_type").$type<InviteType>().notNull().default("single"),
+  // Seats this invitation carries, set by the host (1 for one person, 2 for a couple).
   maxPartySize: integer("max_party_size").notNull().default(1),
   status: text("status").$type<RsvpStatus>().notNull().default("pending"),
   partySize: integer("party_size"),

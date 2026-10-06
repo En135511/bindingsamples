@@ -21,11 +21,8 @@ export async function submitRsvp(
   if (status !== "attending" && status !== "declined") {
     return { error: "Please let us know whether you can make it." };
   }
-  const requested = Number(formData.get("partySize") ?? 1);
-  const partySize =
-    status === "attending"
-      ? Math.min(Math.max(Number.isInteger(requested) ? requested : 1, 1), guest.maxPartySize)
-      : null;
+  // The host decides how many people an invitation carries; accepting takes all its seats.
+  const partySize = status === "attending" ? guest.maxPartySize : null;
   const note = String(formData.get("note") ?? "").trim().slice(0, 1000) || null;
 
   await db

@@ -6,9 +6,9 @@ import { events, guests } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { formatLongDate, formatTime } from "@/lib/datetime";
 import { getBaseUrl, invitationPath, whatsappShareUrl } from "@/lib/links";
-import { addGuests, removePhoto, updateEvent, uploadPhoto } from "../../actions";
+import { addGuest, addGuests, removePhoto, updateEvent, uploadPhoto } from "../../actions";
 import { EventForm } from "../../EventForm";
-import { AddGuestsForm } from "./AddGuestsForm";
+import { AddGuestForm, BulkAddGuests } from "./AddGuestForm";
 import { GuestRow } from "./GuestRow";
 import { PhotoUpload } from "./PhotoUpload";
 
@@ -28,11 +28,12 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
 
   const attending = guestList.filter((g) => g.status === "attending");
   const stats = [
-    { label: "Invited", value: guestList.length },
+    { label: "Invitations", value: guestList.length },
+    { label: "Seats invited", value: guestList.reduce((sum, g) => sum + g.maxPartySize, 0) },
     { label: "Opened", value: guestList.filter((g) => g.openCount > 0).length },
     {
-      label: "Attending (people)",
-      value: attending.reduce((sum, g) => sum + (g.partySize ?? 1), 0),
+      label: "People attending",
+      value: attending.reduce((sum, g) => sum + (g.partySize ?? g.maxPartySize), 0),
     },
     { label: "Declined", value: guestList.filter((g) => g.status === "declined").length },
     { label: "Awaiting reply", value: guestList.filter((g) => g.status === "pending").length },
@@ -53,7 +54,7 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
         </p>
       </div>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl bg-white p-4 shadow-sm">
             <p className="text-2xl font-semibold">{s.value}</p>
@@ -68,15 +69,17 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
           Each guest gets their own link. Tap <strong>WhatsApp</strong> to send it, or copy it and
           paste it anywhere.
         </p>
-        <AddGuestsForm action={addGuests.bind(null, event.id)} />
+        <div className="space-y-3">
+          <AddGuestForm action={addGuest.bind(null, event.id)} />
+          <BulkAddGuests action={addGuests.bind(null, event.id)} />
+        </div>
 
         {guestList.length > 0 && (
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="border-b border-stone-200 text-xs text-stone-500 uppercase">
                 <tr>
-                  <th className="py-2 pr-3 font-medium">Guest</th>
-                  <th className="py-2 pr-3 font-medium">Seats</th>
+                  <th className="py-2 pr-3 font-medium">Invitation</th>
                   <th className="py-2 pr-3 font-medium">Opened</th>
                   <th className="py-2 pr-3 font-medium">Reply</th>
                   <th className="py-2 font-medium">Send</th>

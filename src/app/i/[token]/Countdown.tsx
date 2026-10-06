@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { CountUp } from "./ScrollEffects";
 
 function subscribe(onChange: () => void) {
   const id = setInterval(onChange, 30_000);
@@ -12,11 +13,11 @@ const getServerSnapshot = () => null;
 
 export function Countdown({ startsAtIso }: { startsAtIso: string }) {
   const nowMinute = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  if (nowMinute === null) return <div className="h-16" />;
+  if (nowMinute === null) return <div className="h-[5.5rem]" />;
 
   const minutesLeft = Math.floor(new Date(startsAtIso).getTime() / 60_000) - nowMinute;
   if (minutesLeft <= 0) {
-    return <p className="font-serif text-lg text-navy-900 italic">The celebration has begun! 🎉</p>;
+    return <p className="font-body text-2xl text-navy-900 italic">The celebration has begun! 🎉</p>;
   }
 
   const units = [
@@ -25,12 +26,21 @@ export function Countdown({ startsAtIso }: { startsAtIso: string }) {
     { label: "Minutes", value: minutesLeft % 60 },
   ];
 
+  const spoken = units.map((u) => `${u.value} ${u.label.toLowerCase()}`).join(", ");
+
   return (
-    <div className="flex justify-center gap-3" aria-label="Time until the celebration">
+    <div className="flex justify-center gap-2.5 sm:gap-4" role="group" aria-label={`Time until the celebration: ${spoken}`}>
       {units.map((u) => (
-        <div key={u.label} className="w-20 rounded-md bg-navy-900 px-2 py-2 text-gold-300">
-          <p className="font-serif text-2xl tabular-nums">{u.value}</p>
-          <p className="text-[10px] tracking-[0.2em] text-gold-200/70 uppercase">{u.label}</p>
+        <div
+          key={u.label}
+          aria-hidden="true"
+          className="w-[5.25rem] rounded-md bg-navy-900 px-2 pt-3 pb-2 text-gold-300 shadow-[inset_0_0_0_1px_rgba(201,162,77,0.35)] sm:w-24"
+        >
+          <CountUp
+            value={u.value}
+            className="block font-serif text-[2rem] leading-none [font-variant-numeric:lining-nums_tabular-nums] sm:text-4xl"
+          />
+          <p className="mt-1.5 text-[10px] font-medium tracking-[0.22em] text-gold-200/75 uppercase">{u.label}</p>
         </div>
       ))}
     </div>

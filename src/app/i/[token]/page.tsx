@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { guests } from "@/db/schema";
 import { dateParts, formatLongDate, formatTime } from "@/lib/datetime";
+import { addressee, isPlural } from "@/lib/invites";
 import { eventInstants, getBaseUrl, googleCalendarUrl, mapsUrl } from "@/lib/links";
 import { getInvitation } from "./data";
 import { Invitation } from "./Invitation";
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/i/[token]">): Pro
   const invitation = await getInvitation((await params).token);
   if (!invitation) return { title: "Invitation not found" };
   const { event, guest } = invitation;
-  const title = `${guest.name}, you're invited! 🎓`;
+  const title = `${addressee(guest)}, you're invited! 🎓`;
   const description = `${event.honoreeName}'s ${event.title} · ${formatLongDate(event.startsAt)}`;
   return {
     // Link previews need an absolute image URL, so build it from the address the guest used.
@@ -58,10 +59,10 @@ export default async function InvitationPage({ params, searchParams }: PageProps
     <Invitation
       token={token}
       guest={{
-        name: guest.name,
-        maxPartySize: guest.maxPartySize,
+        addressee: addressee(guest),
+        plural: isPlural(guest.inviteType),
+        seats: guest.maxPartySize,
         status: guest.status,
-        partySize: guest.partySize,
         note: guest.note,
       }}
       event={{

@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import type { Event, Guest } from "@/db/schema";
+import { addressee } from "./invites";
 import { toInstant } from "./datetime";
 
 export async function getBaseUrl() {
@@ -19,9 +20,9 @@ export function firstName(name: string) {
   return name.trim().split(/\s+/)[0] ?? name;
 }
 
-export function whatsappShareUrl(guest: Pick<Guest, "name" | "phone">, event: Event, link: string) {
+export function whatsappShareUrl(guest: Pick<Guest, "name" | "phone" | "inviteType">, event: Event, link: string) {
   const text =
-    `Hi ${guest.name.trim()}! 🎓 I'd love for you to celebrate my graduation with me. ` +
+    `Hi ${addressee(guest)}! 🎓 I'd love for you to celebrate my graduation with me. ` +
     `Here is your personal invitation:\n${link}`;
   const phone = guest.phone?.replace(/\D/g, "");
   return `https://wa.me/${phone ?? ""}?text=${encodeURIComponent(text)}`;
