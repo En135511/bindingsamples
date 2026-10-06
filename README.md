@@ -43,14 +43,15 @@ npm run dev
 Open http://localhost:3000/admin and log in with the password **`admin`**.
 
 No database setup is needed. When `DATABASE_URL` isn't set, the app uses a built-in database
-saved in the `.data/` folder. Delete that folder to start over.
+saved in the `.data/` folder. Only one copy of the app can use it at a time, so run `npm run dev`
+in one terminal only. To start over, stop the app and delete the `.data/` folder.
 
 To see the invitation on your phone, connect it to the same Wi-Fi and open the **Network**
 address that `npm run dev` prints (e.g. `http://192.168.1.20:3000`). Then open the guest links
 from the dashboard there. Guest links copied from the dashboard use whatever address you opened
 it with.
 
-Optional settings go in a `.env` file (see `.env.example`):
+Optional settings go in a `.env` file (copy `.env.example` and uncomment what you need):
 `ADMIN_PASSWORD` to change the password, and `DATABASE_URL` to use a real Postgres database
 (then run `npm run db:migrate` once).
 
