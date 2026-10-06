@@ -240,63 +240,52 @@ function InvitationCard({
 }
 
 /**
- * The graduate's photo in a tall gold arch. On phones and tablets it's the top of the card;
- * on computers it's the left half and stays in view while the details scroll past.
+ * The graduate's photo, unframed and edge to edge. On phones and tablets it's the top of the
+ * card; on computers it fills the left half and stays in view while the details scroll past.
  */
 function PhotoPanel({ event }: { event: InvitationEvent }) {
   return (
     <div className="relative bg-navy-900 lg:rounded-l-md">
-      <div className="flex flex-col items-center gap-6 px-6 pt-10 pb-12 text-center sm:px-10 sm:pt-12 sm:pb-14 lg:sticky lg:top-0 lg:h-dvh lg:max-h-[60rem] lg:justify-center lg:py-12">
-        {/* Soft gold light behind the portrait */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_45%,rgba(201,162,77,0.22),transparent_70%)]"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="relative text-[11px] font-medium tracking-[0.4em] text-gold-300 uppercase sm:text-xs"
-        >
-          {event.classYear ? `The Class of ${event.classYear}` : event.title}
-        </motion.p>
-
+      <div className="lg:sticky lg:top-0 lg:flex lg:h-dvh lg:max-h-[64rem] lg:flex-col">
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-[min(78vw,22rem)] md:w-[24rem] lg:w-[min(100%,26rem,calc((100dvh-14rem)*0.8))]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="relative aspect-[4/5] overflow-hidden bg-navy-800 md:aspect-square lg:aspect-auto lg:min-h-0 lg:flex-1 lg:rounded-tl-md"
         >
-          {/* Double gold frame */}
-          <div className="arch border-2 border-gold-400 p-2">
-            <div className="arch border border-gold-400/60 p-1.5">
-              <div className="arch relative aspect-[4/5] overflow-hidden bg-navy-800">
-                {event.photoUrl ? (
-                  <ParallaxImage
-                    src={event.photoUrl}
-                    alt={event.honoreeName}
-                    className="h-full w-full object-cover object-[50%_25%]"
-                  />
-                ) : (
-                  <div className="grid h-full w-full place-items-center">
-                    <MortarboardIcon className="h-1/3 w-1/3 text-gold-400" />
-                  </div>
-                )}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-navy-950/50 to-transparent" />
-              </div>
+          {event.photoUrl ? (
+            <ParallaxImage
+              src={event.photoUrl}
+              alt={event.honoreeName}
+              className="h-full w-full object-cover object-[50%_25%]"
+            />
+          ) : (
+            <div className="grid h-full w-full place-items-center">
+              <MortarboardIcon className="h-1/3 w-1/3 text-gold-400" />
             </div>
-          </div>
+          )}
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="gold-text relative font-script text-[clamp(2.4rem,7vw,3.25rem)] leading-none"
-        >
-          {firstName(event.honoreeName)}
-        </motion.p>
+        <div className="flex flex-col items-center gap-2 px-6 pt-8 pb-9 text-center sm:pt-10 sm:pb-11">
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-[11px] font-medium tracking-[0.4em] text-gold-300 uppercase sm:text-xs"
+          >
+            {event.classYear ? `The Class of ${event.classYear}` : event.title}
+          </motion.p>
+          {/* Generous line height + padding: the gold fill only paints inside the line box,
+              and this script's flourishes reach well beyond it. */}
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.8 }}
+            className="gold-text px-3 py-2 font-script text-[clamp(2.6rem,7vw,3.5rem)] leading-[1.35]"
+          >
+            {firstName(event.honoreeName)}
+          </motion.p>
+        </div>
       </div>
     </div>
   );

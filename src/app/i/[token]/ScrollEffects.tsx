@@ -31,7 +31,7 @@ export function Reveal({
       className={className}
       initial={reduce ? false : { opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25, margin: "0px 0px -8% 0px" }}
+      viewport={{ once: true, amount: 0.12, margin: "0px 0px -4% 0px" }}
       transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
@@ -92,15 +92,14 @@ export function CountUp({ value, className }: { value: number; className?: strin
 export function ParallaxImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
-  // Scaling by 1.08 leaves 4% spare on each edge, so drifting by up to 3% never shows a gap.
-  const scale = useTransform(scrollY, [0, 900], [1.16, 1.08], { clamp: true });
-  const y = useTransform(scrollY, [0, 900], ["0%", "3%"], { clamp: true });
+  // A gentle zoom-out as the page scrolls; never moves the photo, so nothing is uncovered.
+  const scale = useTransform(scrollY, [0, 900], [1.05, 1], { clamp: true });
   return (
     <motion.img
       src={src}
       alt={alt}
       className={className}
-      style={reduce ? undefined : { scale, y }}
+      style={reduce ? undefined : { scale }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}

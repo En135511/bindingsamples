@@ -27,7 +27,7 @@ export function Envelope({
         <p className="text-xs tracking-[0.35em] text-gold-300/70 uppercase">
           A special invitation for
         </p>
-        <h1 className="gold-text mt-3 font-script text-5xl leading-tight sm:text-6xl">{guestName}</h1>
+        <h1 className="gold-text mt-2 px-2 py-1 font-script text-5xl leading-[1.3] text-balance sm:text-6xl">{guestName}</h1>
       </motion.div>
 
       <motion.button
