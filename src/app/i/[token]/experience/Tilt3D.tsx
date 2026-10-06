@@ -59,7 +59,7 @@ export function Tilt3D({ children, className }: { children: React.ReactNode; cla
         <div
           ref={glare}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-sm mix-blend-soft-light"
+          className="pointer-events-none absolute inset-0 rounded-[14px] mix-blend-soft-light"
           style={{
             backgroundImage:
               "radial-gradient(circle at center, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%)",

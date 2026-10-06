@@ -198,17 +198,130 @@ class SoundEngine {
     [86, 90, 93, 98].forEach((midi, i) => this.bell(midiToHz(midi), t + i * 0.09, 0.16));
   }
 
+  /** A building whoosh while the envelope trembles before it bursts. */
+  riser(duration = 0.6) {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 2;
+    filter.frequency.setValueAtTime(250, t);
+    filter.frequency.exponentialRampToValueAtTime(3500, t + duration);
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    src.loop = true;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.35, t + duration);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.05);
+    src.connect(filter).connect(gain).connect(this.master);
+    src.start(t);
+    src.stop(t + duration + 0.1);
+
+    const tone = ctx.createOscillator();
+    tone.type = "triangle";
+    tone.frequency.setValueAtTime(180, t);
+    tone.frequency.exponentialRampToValueAtTime(720, t + duration);
+    const toneGain = ctx.createGain();
+    toneGain.gain.setValueAtTime(0.0001, t);
+    toneGain.gain.exponentialRampToValueAtTime(0.12, t + duration);
+    toneGain.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.05);
+    tone.connect(toneGain).connect(this.master);
+    tone.start(t);
+    tone.stop(t + duration + 0.1);
+  }
+
+  /** The seal bursting: a crack on top of a deep boom. */
+  impact() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    this.crack();
+    const t = ctx.currentTime;
+    const boom = ctx.createOscillator();
+    boom.frequency.setValueAtTime(110, t);
+    boom.frequency.exponentialRampToValueAtTime(38, t + 0.6);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.7, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    boom.connect(gain).connect(this.master);
+    boom.start(t);
+    boom.stop(t + 0.75);
+    const low = ctx.createBiquadFilter();
+    low.type = "lowpass";
+    low.frequency.value = 500;
+    this.noiseBurst(t, 0.35, low, 0.5, 0.4);
+  }
+
+  /** A fast upward run of bells as the light pours out. */
+  shimmer() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const run = [74, 76, 78, 81, 83, 86, 88, 90, 93, 95, 98, 100];
+    run.forEach((midi, i) => this.bell(midiToHz(midi), t + i * 0.045, 0.07 + i * 0.006, 1.6));
+  }
+
+  /** The "item get" moment: a quick arpeggio into a big shining chord. */
+  fanfare() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    [74, 78, 81].forEach((midi, i) => {
+      this.brass(midiToHz(midi), t + i * 0.1, 0.12, 0.11);
+      this.bell(midiToHz(midi + 12), t + i * 0.1, 0.1, 1.2);
+    });
+    const chordAt = t + 0.32;
+    for (const midi of [62, 69, 74, 78, 81, 86]) this.brass(midiToHz(midi), chordAt, 1.7, 0.09);
+    [86, 90, 93, 98].forEach((midi, i) => this.bell(midiToHz(midi), chordAt + i * 0.06, 0.14, 3));
+  }
+
+  /** A warm brass-like synth voice (two detuned sawtooth waves through a soft filter). */
+  private brass(freq: number, start: number, length: number, peak: number) {
+    const ctx = this.ctx!;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(800, start);
+    filter.frequency.linearRampToValueAtTime(2800, start + 0.08);
+    filter.frequency.linearRampToValueAtTime(1600, start + length);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(peak, start + 0.04);
+    gain.gain.setValueAtTime(peak * 0.75, start + length);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + length + 0.9);
+    filter.connect(gain);
+    gain.connect(this.master);
+    gain.connect(this.reverb);
+    for (const detune of [-7, 7]) {
+      const osc = ctx.createOscillator();
+      osc.type = "sawtooth";
+      osc.frequency.value = freq;
+      osc.detune.value = detune;
+      osc.connect(filter);
+      osc.start(start);
+      osc.stop(start + length + 1);
+    }
+  }
+
+  /** A little celebration when a guest says yes. */
+  celebrate() {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    [81, 86, 90, 93].forEach((midi, i) => this.bell(midiToHz(midi), t + i * 0.07, 0.15, 2));
+  }
+
   // ── Music ────────────────────────────────────────────────────────────────
 
   get musicPlaying() {
     return this.timer !== null;
   }
 
-  startMusic() {
+  startMusic(delay = 0.6) {
     const ctx = this.ctx;
     if (!ctx || this.timer) return;
     this.nextBar = 0;
-    this.nextBarTime = ctx.currentTime + 0.6;
+    this.nextBarTime = ctx.currentTime + delay;
     this.musicBus.gain.cancelScheduledValues(ctx.currentTime);
     this.musicBus.gain.setValueAtTime(0.0001, ctx.currentTime);
     this.musicBus.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + 3);

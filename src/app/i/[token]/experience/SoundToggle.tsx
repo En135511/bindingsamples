@@ -18,7 +18,7 @@ export function SoundToggle() {
       animate={{ opacity: 1, scale: 1 }}
       onClick={() => sound.setMuted(!muted)}
       aria-label={muted ? "Turn sound on" : "Turn sound off"}
-      className="fixed top-4 right-4 z-50 grid h-11 w-11 place-items-center rounded-full bg-navy-900/80 text-gold-300 ring-1 ring-gold-500/50 backdrop-blur hover:text-gold-200"
+      className="fixed top-4 right-4 z-[80] grid h-11 w-11 place-items-center rounded-full bg-white/80 text-navy-900 shadow-md ring-1 ring-gold-500/60 backdrop-blur hover:text-gold-600"
     >
       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M11 5 6 9H3v6h3l5 4V5Z" fill="currentColor" />

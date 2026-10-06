@@ -16,7 +16,7 @@ export function Countdown({ startsAtIso }: { startsAtIso: string }) {
 
   const minutesLeft = Math.floor(new Date(startsAtIso).getTime() / 60_000) - nowMinute;
   if (minutesLeft <= 0) {
-    return <p className="font-serif text-lg text-navy-900 italic">The celebration has begun! 🎉</p>;
+    return <p className="gold-text font-serif text-xl italic">The celebration has begun! 🎉</p>;
   }
 
   const units = [
@@ -28,9 +28,11 @@ export function Countdown({ startsAtIso }: { startsAtIso: string }) {
   return (
     <div className="flex justify-center gap-3" aria-label="Time until the celebration">
       {units.map((u) => (
-        <div key={u.label} className="w-20 rounded-md bg-navy-900 px-2 py-2 text-gold-300">
-          <p className="font-serif text-2xl tabular-nums">{u.value}</p>
-          <p className="text-[10px] tracking-[0.2em] text-gold-200/70 uppercase">{u.label}</p>
+        <div key={u.label} className="gold-foil w-20 rounded-xl p-[2px] shadow-[0_6px_16px_-6px_rgba(120,85,25,0.5)]">
+          <div className="rounded-[10px] bg-gradient-to-b from-white to-cream-100 px-2 pt-2 pb-1.5">
+            <p className="font-serif text-3xl font-semibold text-navy-900 tabular-nums">{u.value}</p>
+            <p className="text-[10px] font-medium tracking-[0.2em] text-gold-600 uppercase">{u.label}</p>
+          </div>
         </div>
       ))}
     </div>

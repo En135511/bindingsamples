@@ -24,10 +24,10 @@ export function Envelope({
         transition={{ duration: 0.9 }}
         className="text-center"
       >
-        <p className="text-xs tracking-[0.35em] text-gold-300/70 uppercase">
+        <p className="text-[11px] font-medium tracking-[0.4em] text-gold-600 uppercase">
           A special invitation for
         </p>
-        <h1 className="gold-text mt-3 font-script text-5xl leading-tight sm:text-6xl">{guestName}</h1>
+        <h1 className="mt-3 font-script text-5xl leading-tight text-navy-800 sm:text-6xl">{guestName}</h1>
       </motion.div>
 
       <motion.button
@@ -42,7 +42,7 @@ export function Envelope({
         className="relative aspect-[3/2] w-[min(88vw,420px)] cursor-pointer [perspective:1200px]"
       >
         {/* Inside of the envelope */}
-        <div className="absolute inset-0 rounded-md bg-navy-950 shadow-[0_25px_60px_rgba(0,0,0,0.6)] ring-1 ring-gold-500/30" />
+        <div className="absolute inset-0 rounded-md bg-[#d9b864] shadow-[0_30px_60px_-15px_rgba(120,85,25,0.55)] ring-1 ring-gold-500/40" />
 
         {/* The card inside, which slides up once the flap opens */}
         <motion.div
@@ -58,7 +58,7 @@ export function Envelope({
         <div
           className="absolute inset-0 z-[2] rounded-md"
           style={{
-            background: "linear-gradient(165deg, #22396e 0%, #142652 55%, #0e1b3a 100%)",
+            background: "linear-gradient(165deg, #fffaf0 0%, #f6eddb 55%, #efe3c8 100%)",
             clipPath: "polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%)",
           }}
         />
@@ -72,7 +72,7 @@ export function Envelope({
             points="0,100 50,56 100,100"
             fill="none"
             stroke="#c9a24d"
-            strokeOpacity="0.45"
+            strokeOpacity="0.7"
             strokeWidth="1"
             vectorEffect="non-scaling-stroke"
           />
@@ -82,7 +82,7 @@ export function Envelope({
         <motion.div
           className="absolute inset-x-0 top-0 h-[58%] origin-top rounded-t-md"
           style={{
-            background: "linear-gradient(180deg, #2a4380 0%, #172a55 100%)",
+            background: "linear-gradient(180deg, #fbf4e4 0%, #efe2c6 100%)",
             clipPath: "polygon(0 0, 100% 0, 50% 100%)",
             zIndex: opening ? 0 : 3,
           }}
@@ -92,13 +92,13 @@ export function Envelope({
 
         {/* Wax seal */}
         <motion.div
-          className="absolute top-[58%] left-1/2 z-[4] -mt-8 -ml-8 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-500 to-gold-600 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-gold-200/40"
+          className="absolute top-[58%] left-1/2 z-[4] -mt-8 -ml-8 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-navy-700 via-navy-800 to-navy-950 shadow-[0_6px_14px_rgba(14,27,58,0.45)] ring-2 ring-gold-400/70"
           animate={opening ? { scale: 0, opacity: 0 } : { scale: [1, 1.07, 1] }}
           transition={
             opening ? { duration: 0.3 } : { duration: 2.4, repeat: Infinity, ease: "easeInOut" }
           }
         >
-          <MortarboardIcon className="h-8 w-8 text-navy-900" />
+          <MortarboardIcon className="h-8 w-8 text-gold-400" />
         </motion.div>
       </motion.button>
 
@@ -106,7 +106,7 @@ export function Envelope({
         initial={{ opacity: 0 }}
         animate={{ opacity: opening ? 0 : [0.4, 1, 0.4] }}
         transition={opening ? { duration: 0.3 } : { duration: 2.4, repeat: Infinity }}
-        className="text-sm tracking-wide text-gold-200/80"
+        className="rounded-full bg-white/70 px-5 py-2 text-sm font-medium tracking-wide text-navy-900 shadow-sm ring-1 ring-gold-400/60"
       >
         Tap the envelope to open
       </motion.p>

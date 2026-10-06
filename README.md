@@ -2,20 +2,26 @@
 
 Personal, animated graduation invitations that you share on WhatsApp.
 
-Each guest gets their own private link. When they open it they see a 3D envelope floating among
-gold sparkles, with their name written on it. They tap the wax seal: it cracks, the flap swings
-open, the card rises out and the camera glides in, with sound effects and a soft music-box tune.
-The invitation then floats over tumbling 3D graduation caps and tilts with their phone. It has
-the event details, a countdown, "add to calendar" buttons and an RSVP form. You track who opened
-their link and who is coming from a private dashboard.
+Each guest gets their own private link, and opening it is a **big reveal** inspired by video
+games:
 
-| Envelope | Invitation | Desktop |
+1. A cream envelope with gold trim floats in warm light, with the guest's name on it and a
+   navy wax seal pulsing "tap me".
+2. The tap charges it up — it trembles as golden light leaks out — then the seal **bursts** into
+   glitter with a boom and a camera shake.
+3. The flap flies open and **god rays** pour out; the card rises, then **spins toward you** like
+   an item being revealed, with a shine sweep and a fanfare.
+4. A bright flash, and the invitation lands with a springy bounce and confetti cannons: ivory paper,
+   gold foil, a laurel wreath around the graduate's photo, a ribbon banner, a countdown and a
+   game-style RSVP that celebrates when guests say yes.
+
+| Envelope | The reveal | Invitation |
 |---|---|---|
-| ![Envelope](docs/screenshots/2-envelope.png) | ![Invitation](docs/screenshots/3-invitation-3d.png) | ![Desktop](docs/screenshots/8-desktop-3d.png) |
+| ![Envelope](docs/screenshots/1-envelope.png) | ![Card reveal](docs/screenshots/3-card-reveal.png) | ![Invitation](docs/screenshots/4-invitation.png) |
 
-Phones that can't do 3D, or have "reduce motion" switched on, automatically get a lighter
-animated (or still) version. All sounds are generated in the browser — there are no audio
-files — and guests can mute them with the button in the corner.
+All sound (riser, impact, sparkles, fanfare, music box) is synthesized in the browser — no audio
+files — and guests can mute it. Phones that can't do 3D, or have "reduce motion" on, get a lighter
+animated (or still) version. Add `&slowmo=20` to a preview link to watch the reveal in slow motion.
 
 ## How it works
 

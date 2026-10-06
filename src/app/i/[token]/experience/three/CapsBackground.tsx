@@ -67,7 +67,7 @@ function ScrollParallax() {
       <Float speed={1.2} rotationIntensity={0.6} floatIntensity={0.6}>
         <HeroCap />
       </Float>
-      <Sparkles count={140} scale={[16, 26, 8]} position={[0, -8, -3]} size={2.2} speed={0.25} color="#ead39a" opacity={0.8} />
+      <Sparkles count={140} scale={[16, 26, 8]} position={[0, -8, -3]} size={3.2} speed={0.25} color="#c9a24d" opacity={0.9} />
       {caps.map((c, i) => (
         <Float key={c.key} speed={c.speed} rotationIntensity={0.8} floatIntensity={1.2}>
           <group
