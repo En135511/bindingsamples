@@ -1,4 +1,8 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { customType, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+
+const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
+  dataType: () => "bytea",
+});
 
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
@@ -18,8 +22,18 @@ export const events = pgTable("events", {
   message: text("message"),
   // "YYYY-MM-DD"
   rsvpBy: text("rsvp_by"),
-  photoUrl: text("photo_url"),
+  // Set when a photo is uploaded; also used to bust the browser cache when it changes.
+  photoUpdatedAt: timestamp("photo_updated_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Kept apart from `events` so ordinary event queries don't load the image bytes.
+export const eventPhotos = pgTable("event_photos", {
+  eventId: integer("event_id")
+    .primaryKey()
+    .references(() => events.id, { onDelete: "cascade" }),
+  contentType: text("content_type").notNull(),
+  data: bytea("data").notNull(),
 });
 
 export const RSVP_STATUSES = ["pending", "attending", "declined"] as const;

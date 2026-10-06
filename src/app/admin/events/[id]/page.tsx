@@ -6,10 +6,11 @@ import { events, guests } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { formatLongDate, formatTime } from "@/lib/datetime";
 import { getBaseUrl, invitationPath, whatsappShareUrl } from "@/lib/links";
-import { addGuests, updateEvent } from "../../actions";
+import { addGuests, removePhoto, updateEvent, uploadPhoto } from "../../actions";
 import { EventForm } from "../../EventForm";
 import { AddGuestsForm } from "./AddGuestsForm";
 import { GuestRow } from "./GuestRow";
+import { PhotoUpload } from "./PhotoUpload";
 
 export default async function EventAdminPage({ params }: PageProps<"/admin/events/[id]">) {
   await requireAdmin();
@@ -98,6 +99,19 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
             </table>
           </div>
         )}
+      </section>
+
+      <section className="rounded-xl bg-white p-6 shadow-sm">
+        <h2 className="mb-4 font-serif text-xl">Your photo</h2>
+        <PhotoUpload
+          photoSrc={
+            event.photoUpdatedAt
+              ? `/admin/events/${event.id}/photo?v=${event.photoUpdatedAt.getTime()}`
+              : null
+          }
+          upload={uploadPhoto.bind(null, event.id)}
+          remove={removePhoto.bind(null, event.id)}
+        />
       </section>
 
       <section className="rounded-xl bg-white p-6 shadow-sm">

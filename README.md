@@ -14,6 +14,7 @@ is coming from a private dashboard.
 ## How it works
 
 1. Go to `/admin`, log in with your password and create your event.
+   Upload a photo of yourself under **Your photo** on the event page.
 2. Add guests, one per line: `Aunt Mary, +254 712 345678, 2` (name, optional WhatsApp number,
    optional number of seats).
 3. Press **WhatsApp** next to a guest. WhatsApp opens with a ready-made message and their link.
@@ -113,7 +114,6 @@ drizzle/                   SQL migrations
 ## Ideas for later
 
 - More themes (wedding, birthday) and a theme picker
-- Photo upload instead of a photo link
 - Guest-count limits, meal choices, plus-one names
 - Reminders before the RSVP deadline
 - Multiple hosts with their own accounts

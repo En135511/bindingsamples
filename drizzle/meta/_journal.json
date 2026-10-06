@@ -8,6 +8,20 @@
       "when": 1791271849818,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791273939525,
+      "tag": "0001_event_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791273940956,
+      "tag": "0002_photo_updated_at",
+      "breakpoints": true
     }
   ]
 }

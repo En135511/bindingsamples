@@ -92,13 +92,6 @@ export function EventForm({ action, event, submitLabel }: Props) {
         defaultValue={event?.dressCode ?? ""}
       />
       <Field label="RSVP by" name="rsvpBy" type="date" defaultValue={event?.rsvpBy ?? ""} />
-      <Field
-        label="Photo link"
-        name="photoUrl"
-        type="url"
-        hint="Optional. A link to a photo of you, shown on the invitation."
-        defaultValue={event?.photoUrl ?? ""}
-      />
       <label className="sm:col-span-2">
         <span className="label">Personal message</span>
         <textarea

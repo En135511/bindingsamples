@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "photo_updated_at" timestamp with time zone;

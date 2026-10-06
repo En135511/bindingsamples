@@ -5,9 +5,10 @@ import { customAlphabet } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { events, guests } from "@/db/schema";
+import { eventPhotos, events, guests } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { isValidTimeZone } from "@/lib/datetime";
+import { MAX_PHOTO_BYTES, PHOTO_TYPES } from "@/lib/photos";
 
 // Unambiguous characters only, so links survive being read aloud or retyped.
 const newToken = customAlphabet("23456789abcdefghjkmnpqrstuvwxyz", 12);
@@ -45,7 +46,6 @@ function parseEvent(formData: FormData) {
       dressCode: optional(formData, "dressCode"),
       message: optional(formData, "message"),
       rsvpBy: optional(formData, "rsvpBy"),
-      photoUrl: optional(formData, "photoUrl"),
     },
   } as const;
 }
@@ -123,5 +123,33 @@ export async function updateGuestSeats(eventId: number, guestId: number, formDat
 export async function deleteGuest(eventId: number, guestId: number) {
   await requireAdmin();
   await db.delete(guests).where(and(eq(guests.id, guestId), eq(guests.eventId, eventId)));
+  revalidatePath(`/admin/events/${eventId}`);
+}
+
+export async function uploadPhoto(
+  eventId: number,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) return { error: "Please choose a photo." };
+  if (!PHOTO_TYPES.includes(file.type)) return { error: "Please choose a JPG, PNG or WebP photo." };
+  if (file.size > MAX_PHOTO_BYTES) return { error: "That photo is too large." };
+
+  const photo = { contentType: file.type, data: new Uint8Array(await file.arrayBuffer()) };
+  await db
+    .insert(eventPhotos)
+    .values({ eventId, ...photo })
+    .onConflictDoUpdate({ target: eventPhotos.eventId, set: photo });
+  await db.update(events).set({ photoUpdatedAt: new Date() }).where(eq(events.id, eventId));
+  revalidatePath(`/admin/events/${eventId}`);
+  return { ok: "Photo saved." };
+}
+
+export async function removePhoto(eventId: number) {
+  await requireAdmin();
+  await db.delete(eventPhotos).where(eq(eventPhotos.eventId, eventId));
+  await db.update(events).set({ photoUpdatedAt: null }).where(eq(events.id, eventId));
   revalidatePath(`/admin/events/${eventId}`);
 }

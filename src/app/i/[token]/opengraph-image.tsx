@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { formatLongDate } from "@/lib/datetime";
+import { photoDataUrl } from "@/lib/photos";
 import { getInvitation } from "./data";
 
 export const alt = "Graduation invitation";
@@ -13,6 +14,7 @@ export default async function Image({ params }: { params: Promise<{ token: strin
   const guest = invitation?.guest.name ?? "";
   const date = invitation ? formatLongDate(invitation.event.startsAt) : "";
   const classYear = invitation?.event.classYear;
+  const photo = invitation?.event.photoUpdatedAt ? await photoDataUrl(invitation.event.id) : null;
 
   return new ImageResponse(
     (
@@ -31,7 +33,6 @@ export default async function Image({ params }: { params: Promise<{ token: strin
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             width: 1100,
@@ -39,9 +40,32 @@ export default async function Image({ params }: { params: Promise<{ token: strin
             border: "3px solid #c9a24d",
             outline: "1px solid rgba(201,162,77,0.5)",
             outlineOffset: 10,
-            gap: 18,
+            gap: 56,
           }}
         >
+          {photo && (
+            // eslint-disable-next-line jsx-a11y/alt-text -- rendered to a PNG, not HTML
+            <img
+              src={photo}
+              width={330}
+              height={330}
+              style={{
+                borderRadius: 9999,
+                objectFit: "cover",
+                objectPosition: "50% 25%",
+                border: "6px solid #dcbc6e",
+              }}
+            />
+          )}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: photo ? "flex-start" : "center",
+              maxWidth: photo ? 600 : 1000,
+              gap: 18,
+            }}
+          >
           <svg width="96" height="96" viewBox="0 0 64 64" fill="#dcbc6e">
             <path d="M32 12 4 24l28 12 28-12-28-12Z" />
             <path d="M16 30v11c0 4 7.2 8 16 8s16-4 16-8V30l-16 7-16-7Z" opacity="0.85" />
@@ -56,8 +80,9 @@ export default async function Image({ params }: { params: Promise<{ token: strin
           <div style={{ fontSize: 40, color: "#f3e6c0" }}>
             {guest ? `${guest}, you're invited to celebrate` : "You're invited to celebrate"}
           </div>
-          <div style={{ fontSize: 76, color: "#ffffff" }}>{honoree}</div>
+          <div style={{ fontSize: photo ? 64 : 76, color: "#ffffff", lineHeight: 1.1 }}>{honoree}</div>
           <div style={{ fontSize: 32, color: "#dcbc6e" }}>{date}</div>
+          </div>
         </div>
       </div>
     ),

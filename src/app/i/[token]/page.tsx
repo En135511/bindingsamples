@@ -79,7 +79,9 @@ export default async function InvitationPage({ params, searchParams }: PageProps
         dressCode: event.dressCode,
         message: event.message,
         rsvpBy: event.rsvpBy ? formatLongDate(event.rsvpBy) : null,
-        photoUrl: event.photoUrl,
+        photoUrl: event.photoUpdatedAt
+          ? `/i/${token}/photo?v=${event.photoUpdatedAt.getTime()}`
+          : null,
         googleCalendarUrl: googleCalendarUrl(event),
         icsUrl: `/i/${token}/calendar`,
       }}

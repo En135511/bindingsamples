@@ -126,11 +126,11 @@ function InvitationCard({
         >
           <motion.header variants={item} className="space-y-4">
             {event.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- host-provided URL from any domain
+              // eslint-disable-next-line @next/next/no-img-element -- served from our own route
               <img
                 src={event.photoUrl}
                 alt={event.honoreeName}
-                className="mx-auto h-36 w-36 rounded-full object-cover ring-4 ring-gold-400 ring-offset-4 ring-offset-paper"
+                className="mx-auto h-40 w-40 rounded-full object-cover object-[50%_25%] ring-4 ring-gold-400 ring-offset-4 ring-offset-paper"
               />
             ) : (
               <MortarboardIcon className="mx-auto h-12 w-12 text-gold-500" />
