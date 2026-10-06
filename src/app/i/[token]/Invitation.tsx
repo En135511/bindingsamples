@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
+import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { MortarboardIcon } from "@/components/MortarboardIcon";
 import type { RsvpStatus } from "@/db/schema";
 import { Confetti } from "./Confetti";
 import { Countdown } from "./Countdown";
 import { Envelope } from "./Envelope";
 import { RsvpForm } from "./RsvpForm";
+import { requestMotionPermission, useExperienceMode } from "./experience/capabilities";
+import { Envelope3D } from "./experience/Envelope3D";
+import { ErrorBoundary } from "./experience/ErrorBoundary";
+import { sound } from "./experience/sound";
+import { SoundToggle } from "./experience/SoundToggle";
+import { Tilt3D } from "./experience/Tilt3D";
+
+const CapsBackground = dynamic(() => import("./experience/three/CapsBackground"), { ssr: false });
 
 export type InvitationGuest = {
   name: string;
@@ -67,36 +76,80 @@ export function Invitation({
   guest: InvitationGuest;
   event: InvitationEvent;
 }) {
-  const reduceMotion = useReducedMotion();
+  const detected = useExperienceMode();
+  const [force2d, setForce2d] = useState(false);
+  const mode = detected === "3d" && force2d ? "2d" : detected;
   const [stage, setStage] = useState<"sealed" | "opening" | "open">("sealed");
+  const [soundStarted, setSoundStarted] = useState(false);
+  const fallBackTo2d = useCallback(() => setForce2d(true), []);
+  const finishOpening = useCallback(() => setStage("open"), []);
 
   function open() {
     if (stage !== "sealed") return;
-    if (reduceMotion) return setStage("open");
+    // A tap is the only moment browsers allow sound and motion sensors to start.
+    sound.unlock();
+    sound.startMusic();
+    setSoundStarted(true);
+    requestMotionPermission();
+
+    if (mode === "static") {
+      sound.chime();
+      return setStage("open");
+    }
     setStage("opening");
-    setTimeout(() => setStage("open"), 1800);
+    // The 3D scene plays its own sounds and calls finishOpening when its animation ends.
+    if (mode !== "3d") {
+      sound.crack();
+      setTimeout(() => sound.swoosh(0.7), 250);
+      setTimeout(() => sound.swoosh(0.9), 700);
+      setTimeout(() => sound.chime(), 1300);
+      setTimeout(finishOpening, 1800);
+    }
   }
 
   return (
-    <main className="night-sky flex-1 overflow-x-hidden">
+    <main className="night-sky relative flex-1 overflow-x-hidden">
+      {soundStarted && <SoundToggle />}
+      {stage === "open" && mode === "3d" && (
+        <ErrorBoundary fallback={null}>
+          <CapsBackground />
+        </ErrorBoundary>
+      )}
       <AnimatePresence mode="wait">
         {stage !== "open" ? (
-          <Envelope
-            key="envelope"
-            guestName={guest.name}
-            opening={stage === "opening"}
-            onOpen={open}
-          />
+          mode === null ? (
+            <div key="loading" className="h-dvh" />
+          ) : mode === "3d" ? (
+            <ErrorBoundary key="envelope-3d" fallback={null} onError={fallBackTo2d}>
+              <Envelope3D
+                guestName={guest.name}
+                classYear={event.classYear}
+                opening={stage === "opening"}
+                onOpen={open}
+                onOpened={finishOpening}
+                onFail={fallBackTo2d}
+              />
+            </ErrorBoundary>
+          ) : (
+            <Envelope
+              key="envelope"
+              guestName={guest.name}
+              opening={stage === "opening"}
+              onOpen={open}
+            />
+          )
         ) : (
           <motion.div
             key="card"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="px-3 py-8 sm:py-16"
+            className={`relative z-10 px-3 pb-8 sm:pb-16 ${mode === "3d" ? "pt-[34vh]" : "pt-8 sm:pt-16"}`}
           >
-            {!reduceMotion && <Confetti />}
-            <InvitationCard token={token} guest={guest} event={event} />
+            {mode !== "static" && <Confetti />}
+            <Tilt3D className="mx-auto max-w-xl">
+              <InvitationCard token={token} guest={guest} event={event} />
+            </Tilt3D>
           </motion.div>
         )}
       </AnimatePresence>
@@ -116,7 +169,7 @@ function InvitationCard({
   const location = [event.venueName, event.venueAddress].filter(Boolean);
 
   return (
-    <article className="relative mx-auto max-w-xl rounded-sm bg-paper p-2 text-ink shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
+    <article className="relative rounded-sm bg-paper p-2 text-ink shadow-[0_1px_0_#efe6cf,0_2px_0_#e9dec2,0_3px_0_#e2d5b5,0_4px_0_#dccca8,0_5px_0_#d4c39b,0_6px_0_#cbb98e,0_30px_80px_rgba(0,0,0,0.6)]">
       <div className="border border-gold-500/60 p-1.5">
         <motion.div
           variants={container}

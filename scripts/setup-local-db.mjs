@@ -4,6 +4,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
+import lock from "./local-db-lock.cjs";
 
 if (existsSync(".env")) process.loadEnvFile(".env");
 
@@ -11,6 +12,11 @@ if (process.env.DATABASE_URL) {
   console.log("DATABASE_URL is set — skipping the built-in local database.");
 } else {
   mkdirSync(".data", { recursive: true });
+  const holder = lock.lockHolder();
+  if (holder) {
+    console.error(`\n✗ ${lock.alreadyRunningMessage(holder)}\n`);
+    process.exit(1);
+  }
   try {
     const client = new PGlite(".data/pglite");
     await migrate(drizzle(client), { migrationsFolder: "drizzle" });

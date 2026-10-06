@@ -2,14 +2,20 @@
 
 Personal, animated graduation invitations that you share on WhatsApp.
 
-Each guest gets their own private link. When they open it they see a sealed envelope with their
-name on it. They tap it, and it opens into an invitation card with the event details, a
-countdown, "add to calendar" buttons and an RSVP form. You track who opened their link and who
-is coming from a private dashboard.
+Each guest gets their own private link. When they open it they see a 3D envelope floating among
+gold sparkles, with their name written on it. They tap the wax seal: it cracks, the flap swings
+open, the card rises out and the camera glides in, with sound effects and a soft music-box tune.
+The invitation then floats over tumbling 3D graduation caps and tilts with their phone. It has
+the event details, a countdown, "add to calendar" buttons and an RSVP form. You track who opened
+their link and who is coming from a private dashboard.
 
-| Envelope | Invitation | Dashboard |
+| Envelope | Invitation | Desktop |
 |---|---|---|
-| ![Envelope](docs/screenshots/2-envelope.png) | ![Invitation](docs/screenshots/4-invitation.png) | ![Dashboard](docs/screenshots/7-dashboard-after.png) |
+| ![Envelope](docs/screenshots/2-envelope.png) | ![Invitation](docs/screenshots/3-invitation-3d.png) | ![Desktop](docs/screenshots/8-desktop-3d.png) |
+
+Phones that can't do 3D, or have "reduce motion" switched on, automatically get a lighter
+animated (or still) version. All sounds are generated in the browser — there are no audio
+files — and guests can mute them with the button in the corner.
 
 ## How it works
 
@@ -24,7 +30,9 @@ is coming from a private dashboard.
 ## Tech stack
 
 - **Next.js 16** (App Router, server actions) with TypeScript
-- **Tailwind CSS 4** for styling, **Framer Motion** for the envelope and confetti animations
+- **Tailwind CSS 4** for styling, **Framer Motion** for page animations
+- **three.js** with **React Three Fiber** and **drei** for the 3D scenes (loaded only when needed)
+- **Web Audio API** for synthesized sound effects and music
 - **Postgres** through **Drizzle ORM**
 - Hosting: **Render** (free web service) and **Neon** Postgres (free tier)
 
@@ -101,7 +109,8 @@ src/
     api/health/            Health check for Render and uptime monitors
     admin/                 Host dashboard (password protected by src/proxy.ts)
     i/[token]/             The guest's invitation page
-      Envelope.tsx         Sealed-envelope opening animation
+      experience/          3D scenes (three/), sound engine, 3D card tilt, device detection
+      Envelope.tsx         2D envelope animation (fallback when 3D isn't available)
       Invitation.tsx       The invitation card
       RsvpForm.tsx         RSVP form + thank-you message
       opengraph-image.tsx  WhatsApp/social link preview image
