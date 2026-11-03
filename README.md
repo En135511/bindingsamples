@@ -38,7 +38,7 @@ left half and stays in view while the details scroll past.
 - **Next.js 16** (App Router, server actions) with TypeScript
 - **Tailwind CSS 4** for styling, **Framer Motion** for the envelope and confetti animations
 - **Postgres** through **Drizzle ORM**
-- Hosting: **Render** (free web service) and **Neon** Postgres (free tier)
+- Hosting: **Netlify** or **Render** and **Neon** Postgres (free tier)
 
 ## Run it on your computer
 
@@ -69,6 +69,29 @@ Optional settings go in a `.env` file (copy `.env.example` and uncomment what yo
 
 Other commands: `npm run lint`, `npm run typecheck`, `npm run build`.
 After changing `src/db/schema.ts`, run `npm run db:generate` to create a new migration.
+
+## Deploy for free (Netlify + Neon)
+
+1. Create a Postgres database on [Neon](https://neon.tech) and copy its connection string. Use the
+   pooled connection string if Neon offers one.
+2. In your Netlify site's **Environment variables**, add:
+   - `DATABASE_URL` — Neon’s pooled connection string for app queries; make it available to Builds,
+     Functions, and Runtime.
+   - `DATABASE_URL_UNPOOLED` — Neon’s direct connection string for migrations; make it available
+     to Builds only.
+   - `ADMIN_PASSWORD` — a strong, unique dashboard password
+   Set `ADMIN_PASSWORD` for Builds, Functions, and Runtime, and set all three variables for every
+   deploy context where the site should work.
+3. The Netlify build command must be `npm run db:migrate && npm run build`. This runs pending
+   database migrations with the direct connection before building the app. The repository's
+   `netlify.toml` sets this command; if Netlify has a build command explicitly configured in the UI,
+   update that UI setting too.
+4. If secrets scanning flags the generated Turbopack cache, set
+   `SECRETS_SCAN_OMIT_PATHS` to `.netlify/.next/cache` and leave secrets scanning enabled.
+5. Trigger a deploy. After it succeeds, open `/admin` and log in.
+
+The built-in `.data/` database is for local development only; Netlify needs a persistent database.
+The app now reports a clear error if production starts without `DATABASE_URL`.
 
 ## Deploy for free (Render + Neon)
 

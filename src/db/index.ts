@@ -1,22 +1,21 @@
-import { drizzle as drizzlePostgres, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { neon } from "@neondatabase/serverless";
+import { drizzle as drizzleNeon, type NeonHttpDatabase } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 
-type Database = PostgresJsDatabase<typeof schema>;
+type Database = NeonHttpDatabase<typeof schema>;
 
 // Reuse one connection across hot reloads in development.
 const globalForDb = globalThis as unknown as { db?: Database };
 
-/** Where the built-in local database lives when DATABASE_URL isn't set. */
+/** Where the built-in local database lives during local development. */
 export const LOCAL_DB_DIR = ".data/pglite";
 
 function createDb(): Database {
   const url = process.env.DATABASE_URL;
   if (url) {
-    // `prepare: false` keeps us compatible with pooled (PgBouncer) connections such as Neon's.
-    return drizzlePostgres(postgres(url, { prepare: false, max: 5 }), { schema });
+    return drizzleNeon({ client: neon(url), schema });
   }
-  if (process.env.NODE_ENV === "production" && process.env.RENDER) {
+  if (process.env.NODE_ENV === "production") {
     throw new Error("DATABASE_URL must be set in production.");
   }
   // No DATABASE_URL: use PGlite, an embedded Postgres stored in .data/ — zero setup locally.
