@@ -66,7 +66,7 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
         <div className="experience-opening-intro"><p className="experience-kicker">An invitation for</p><h1 ref={focus} tabIndex={-1} className="experience-script">{keepHonorificsTogether(guest.addressee)}</h1></div>
         <Envelope opening={stage === "opening"} onOpen={open} />
       </motion.section>}
-      {stage === "reveal" && <motion.section key="reveal" className="experience-scene" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
+      {stage === "reveal" && <motion.section key="reveal" className="experience-scene experience-reveal-scene" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
         {!reduceMotion && <Confetti />}
         <p className="experience-kicker">With joy, we invite you</p>
         <article className="experience-paper experience-paper-pose"><Portrait src={event.photoUrl} name={event.honoreeName} /><div className="experience-paper-copy">
