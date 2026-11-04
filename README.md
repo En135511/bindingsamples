@@ -86,8 +86,8 @@ After changing `src/db/schema.ts`, run `npm run db:generate` to create a new mig
    database migrations with the direct connection before building the app. The repository's
    `netlify.toml` sets this command; if Netlify has a build command explicitly configured in the UI,
    update that UI setting too.
-4. If secrets scanning flags the generated Turbopack cache, set
-   `SECRETS_SCAN_OMIT_PATHS` to `.netlify/.next/cache` and leave secrets scanning enabled.
+4. If secrets scanning flags generated Turbopack cache files, configure Netlify to omit that
+   generated cache directory from secret scanning. Keep secrets scanning enabled.
 5. Trigger a deploy. After it succeeds, open `/admin` and log in.
 
 The built-in `.data/` database is for local development only; Netlify needs a persistent database.
