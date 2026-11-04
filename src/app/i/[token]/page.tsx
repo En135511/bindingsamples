@@ -37,9 +37,7 @@ export default async function InvitationPage({ params, searchParams }: PageProps
   if (!invitation) notFound();
   const { event, guest } = invitation;
 
-  const query = await searchParams;
-  const isPreview = query.preview !== undefined;
-  const posePreview = isPreview && query.pose === "1";
+  const isPreview = (await searchParams).preview !== undefined;
   const requestHeaders = await headers();
   const userAgent = requestHeaders.get("user-agent") ?? "";
   // Submitting the RSVP re-renders this page; that isn't a new visit.
@@ -60,7 +58,6 @@ export default async function InvitationPage({ params, searchParams }: PageProps
   return (
     <Experience
       token={token}
-      posePreview={posePreview}
       guest={{
         addressee: addressee(guest),
         plural: isPlural(guest.inviteType),
