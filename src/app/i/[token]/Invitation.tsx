@@ -77,7 +77,7 @@ export function Invitation({
       <main className="night-sky flex-1 overflow-x-clip">
         <AnimatePresence mode="wait">
           {stage !== "open" ? (
-            <Envelope key="envelope" guestName={guest.addressee} opening={stage === "opening"} onOpen={open} />
+            <Envelope key="envelope" guestName={guest.addressee} photoUrl={event.photoUrl} opening={stage === "opening"} onOpen={open} />
           ) : (
             <motion.div
               key="card"
@@ -117,8 +117,8 @@ function InvitationCard({
       ref={cardRef}
       tabIndex={-1}
       aria-labelledby="honoree-name"
-      // Phones: one column. Tablets: a wider single column. Computers: photo panel + details side by side.
-      className="mx-auto max-w-[36rem] overflow-clip rounded-md focus:outline-none shadow-[0_30px_80px_rgba(0,0,0,0.5)] md:max-w-[46rem] xl:grid xl:max-w-6xl xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:overflow-visible"
+      // Keep the portrait and invitation together as one centered, editorial invitation.
+      className="mx-auto max-w-[42rem] overflow-clip rounded-md focus:outline-none shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
     >
       <PhotoPanel event={event} />
 
@@ -180,6 +180,22 @@ function InvitationCard({
               )}
               {event.venueAddress && (
                 <p className="font-body text-lg text-pretty text-stone-700">{event.venueAddress}</p>
+              )}
+              {event.venueAddress && (
+                <details className="group mx-auto mt-4 max-w-md overflow-hidden rounded-md border border-gold-500/40 bg-white/40 text-left">
+                  <summary className="cursor-pointer list-none px-4 py-3 text-center text-sm font-medium text-gold-700 marker:hidden hover:bg-gold-200/20 focus-visible:outline-2 focus-visible:outline-gold-700">
+                    <span className="group-open:hidden">Preview the venue &amp; directions <span aria-hidden="true">＋</span></span>
+                    <span className="hidden group-open:inline">Hide venue preview <span aria-hidden="true">−</span></span>
+                  </summary>
+                  <iframe
+                    title={`Map preview for ${event.venueName ?? event.venueAddress}`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(event.venueAddress)}&output=embed`}
+                    className="h-56 w-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <p className="px-4 py-2 text-center text-xs text-stone-600">Explore nearby roads, then open directions when you’re ready.</p>
+                </details>
               )}
               {event.mapUrl && (
                 <a
@@ -244,7 +260,16 @@ function InvitationCard({
               </h2>
               {event.rsvpBy && <p className="font-body text-lg text-stone-600 italic">by {event.rsvpBy}</p>}
             </div>
-            <RsvpForm token={token} guest={guest} honoreeFirstName={honoree} />
+            <RsvpForm
+              token={token}
+              guest={guest}
+              honoreeFirstName={honoree}
+              eventLinks={{
+                mapUrl: event.mapUrl,
+                googleCalendarUrl: event.googleCalendarUrl,
+                icsUrl: event.icsUrl,
+              }}
+            />
           </Reveal>
 
           <Reveal>
@@ -257,25 +282,56 @@ function InvitationCard({
 }
 
 /**
- * The graduate's photo, unframed and edge to edge. On phones and tablets it's the top of the
- * card; on computers it fills the left half and stays in view while the details scroll past.
+ * The graduate's portrait framed by a delicate gold botanical wreath. On phones and tablets
+ * it leads the card; on computers it stays beside the invitation details as guests explore.
  */
 function PhotoPanel({ event }: { event: InvitationEvent }) {
   return (
-    <div className="relative bg-navy-900 xl:rounded-l-md">
-      <div className="xl:sticky xl:top-0 xl:flex xl:h-dvh xl:max-h-[64rem] xl:flex-col">
+    <div className="relative bg-navy-900">
+      <div className="flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          className="relative aspect-[4/5] overflow-hidden bg-navy-800 md:aspect-square xl:aspect-auto xl:min-h-0 xl:flex-1 xl:rounded-tl-md"
+          className="relative grid aspect-[4/3] w-full place-items-center overflow-hidden bg-[radial-gradient(ellipse_at_center,_#263c38_0%,_#14261f_55%,_#0e1b3a_100%)] sm:aspect-[16/10]"
         >
           {event.photoUrl ? (
-            <ParallaxImage
-              src={event.photoUrl}
-              alt={event.honoreeName}
-              className="h-full w-full object-cover object-[50%_25%]"
-            />
+            <div className="relative grid aspect-square w-[min(64%,20rem)] place-items-center" aria-label={`${event.honoreeName}'s portrait in a gold botanical frame`}>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 400 400"
+                className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible drop-shadow-[0_3px_5px_rgba(0,0,0,0.65)]"
+                fill="none"
+              >
+                <circle cx="200" cy="200" r="145" stroke="#d8bc78" strokeWidth="2.5" />
+                <circle cx="200" cy="200" r="152" stroke="#ead7a2" strokeOpacity=".65" strokeWidth="1" />
+                {Array.from({ length: 16 }, (_, index) => {
+                  const angle = (index * 22.5 * Math.PI) / 180;
+                  const x = 200 + Math.cos(angle) * 149;
+                  const y = 200 + Math.sin(angle) * 149;
+                  const rotation = index * 22.5 + 45;
+                  return (
+                    <g key={index} transform={`translate(${x} ${y}) rotate(${rotation})`}>
+                      <path d="M0 0 C-12 -10 -11 -23 0 -31 C11 -23 12 -10 0 0Z" fill="#536f51" stroke="#d8bc78" strokeWidth="1.5" />
+                      <path d="M0 -2V-25" stroke="#e3d19d" strokeOpacity=".8" strokeWidth="1" />
+                    </g>
+                  );
+                })}
+                {Array.from({ length: 8 }, (_, index) => {
+                  const angle = ((index * 45 + 22.5) * Math.PI) / 180;
+                  const x = 200 + Math.cos(angle) * 150;
+                  const y = 200 + Math.sin(angle) * 150;
+                  return <circle key={`dot-${index}`} cx={x} cy={y} r="3" fill="#f0d994" />;
+                })}
+              </svg>
+              <div className="absolute inset-[14%] overflow-hidden rounded-full border-2 border-gold-200/80 bg-navy-800 shadow-[0_0_0_5px_rgba(201,162,77,0.2),0_18px_45px_rgba(0,0,0,0.45)]">
+                <ParallaxImage
+                  src={event.photoUrl}
+                  alt={event.honoreeName}
+                  className="h-full w-full object-cover object-[50%_22%]"
+                />
+              </div>
+            </div>
           ) : (
             <div className="grid h-full w-full place-items-center">
               <MortarboardIcon className="h-1/3 w-1/3 text-gold-400" />
@@ -283,7 +339,7 @@ function PhotoPanel({ event }: { event: InvitationEvent }) {
           )}
         </motion.div>
 
-        <div className="flex flex-col items-center gap-2 px-6 pt-8 pb-9 text-center sm:pt-10 sm:pb-11">
+        <div className="flex flex-col items-center gap-2 px-6 pt-5 pb-7 text-center sm:pt-6 sm:pb-8">
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}

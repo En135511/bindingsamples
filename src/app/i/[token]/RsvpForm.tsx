@@ -13,10 +13,12 @@ export function RsvpForm({
   token,
   guest,
   honoreeFirstName,
+  eventLinks,
 }: {
   token: string;
   guest: InvitationGuest;
   honoreeFirstName: string;
+  eventLinks: { mapUrl: string | null; googleCalendarUrl: string; icsUrl: string };
 }) {
   const [answer, setAnswer] = useState<Answer | null>(guest.status === "pending" ? null : guest.status);
   // Seats an acceptance holds: what they answered before, or all of the invitation's seats.
@@ -92,6 +94,23 @@ export function RsvpForm({
                 <p className="font-body text-xl text-pretty">Thank you for letting {honoreeFirstName} know.</p>
               </>
             )}
+            <div className="flex flex-wrap justify-center gap-2 pt-1 text-sm">
+              {answer === "attending" && (
+                <>
+                  <a href={eventLinks.googleCalendarUrl} target="_blank" rel="noreferrer" className="rounded-full border border-gold-200/40 px-4 py-2 text-gold-100 transition hover:bg-white/10">
+                    Save the date
+                  </a>
+                  <a href={eventLinks.icsUrl} className="rounded-full border border-gold-200/40 px-4 py-2 text-gold-100 transition hover:bg-white/10">
+                    Add to Apple / Outlook
+                  </a>
+                  {eventLinks.mapUrl && (
+                    <a href={eventLinks.mapUrl} target="_blank" rel="noreferrer" className="rounded-full border border-gold-200/40 px-4 py-2 text-gold-100 transition hover:bg-white/10">
+                      Open directions
+                    </a>
+                  )}
+                </>
+              )}
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -159,12 +178,14 @@ export function RsvpForm({
             </fieldset>
 
             <label className="block">
-              <span className="mb-1.5 block text-sm text-stone-600">A note for {honoreeFirstName} (optional)</span>
+              <span className="mb-1.5 block text-sm text-stone-600">Leave {honoreeFirstName} a note (optional)</span>
+              <span className="mb-2 block font-body text-base text-stone-500 italic">Share a memory, a congratulatory wish, or a song request for the celebration.</span>
               <textarea
                 name="note"
                 rows={3}
                 maxLength={1000}
                 defaultValue={guest.note ?? ""}
+                placeholder="Write a little something from the heart…"
                 className="w-full rounded-md border border-navy-900/25 bg-white/80 px-3 py-2 font-body text-lg focus:border-gold-700 focus:outline-2 focus:outline-offset-1 focus:outline-gold-700"
               />
             </label>
