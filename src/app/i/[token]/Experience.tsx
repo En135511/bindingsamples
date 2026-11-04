@@ -17,18 +17,20 @@ type Stage = "envelope" | "opening" | "reveal" | "explore" | "respond" | "comple
 type Answer = Exclude<RsvpStatus, "pending">;
 const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
-function Portrait({ src, name, small = false }: { src: string | null; name: string; small?: boolean }) {
-  return <div className={`experience-portrait ${small ? "experience-portrait-small" : ""}`}>
-    <svg aria-hidden="true" viewBox="0 0 400 400" className="experience-wreath" fill="none">
-      <circle cx="200" cy="200" r="145" stroke="#d8bc78" strokeWidth="2.5" />
-      <circle cx="200" cy="200" r="152" stroke="#ead7a2" strokeOpacity=".7" />
-      {Array.from({ length: 16 }, (_, i) => {
-        const angle = (i * 22.5 * Math.PI) / 180;
-        return <g key={i} transform={`translate(${200 + Math.cos(angle) * 149} ${200 + Math.sin(angle) * 149}) rotate(${i * 22.5 + 45})`}>
-          <path d="M0 0 C-12 -10 -11 -23 0 -31 C11 -23 12 -10 0 0Z" fill="#536f51" stroke="#d8bc78" strokeWidth="1.5" />
-          <path d="M0 -2V-25" stroke="#e3d19d" strokeOpacity=".8" />
-        </g>;
-      })}
+function Portrait({ src, name, small = false, oval = false }: { src: string | null; name: string; small?: boolean; oval?: boolean }) {
+  return <div className={`experience-portrait ${small ? "experience-portrait-small" : ""} ${oval ? "experience-portrait-oval" : ""}`}>
+    <svg aria-hidden="true" viewBox="0 0 400 400" preserveAspectRatio={oval ? "none" : "xMidYMid meet"} className="experience-frame" fill="none">
+      {oval ? <>
+        <ellipse cx="200" cy="200" rx="145" ry="174" stroke="#9e7937" strokeWidth="7" />
+        <ellipse cx="200" cy="200" rx="145" ry="174" stroke="#f4dfaa" strokeWidth="3" />
+        <ellipse cx="200" cy="200" rx="155" ry="184" stroke="#b69556" strokeWidth="1.5" />
+        <path d="M200 8l5 8-5 8-5-8zM200 376l5 8-5 8-5-8z" fill="#caa864" />
+      </> : <>
+        <circle cx="200" cy="200" r="145" stroke="#9e7937" strokeWidth="7" />
+        <circle cx="200" cy="200" r="145" stroke="#f4dfaa" strokeWidth="3" />
+        <circle cx="200" cy="200" r="155" stroke="#b69556" strokeWidth="1.5" />
+        <path d="M200 29l5 8-5 8-5-8zM200 355l5 8-5 8-5-8z" fill="#caa864" />
+      </>}
     </svg>
     <div className="experience-portrait-image">{src ? <Image src={src} alt={name} width={480} height={480} unoptimized priority className="h-full w-full object-cover object-[50%_22%]" /> : <MortarboardIcon className="h-16 w-16 text-gold-300" />}</div>
   </div>;
@@ -36,9 +38,9 @@ function Portrait({ src, name, small = false }: { src: string | null; name: stri
 
 const Rule = () => <div className="experience-rule" aria-hidden="true"><span>✦</span></div>;
 
-export function Experience({ token, guest, event }: { token: string; guest: InvitationGuest; event: InvitationEvent }) {
+export function Experience({ token, guest, event, posePreview = false }: { token: string; guest: InvitationGuest; event: InvitationEvent; posePreview?: boolean }) {
   const reduceMotion = useReducedMotion();
-  const [stage, setStage] = useState<Stage>("envelope");
+  const [stage, setStage] = useState<Stage>(posePreview ? "reveal" : "envelope");
   const [answer, setAnswer] = useState<Answer | null>(guest.status === "pending" ? null : guest.status);
   const [exploreView, setExploreView] = useState<"place" | "countdown" | "message">("place");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -72,15 +74,15 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
         <Envelope opening={stage === "opening"} onOpen={open} />
       </motion.section>}
       {stage === "reveal" && <motion.section key="reveal" className="experience-scene" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
-        {!reduceMotion && <Confetti />}
+        {!posePreview && !reduceMotion && <Confetti />}
         <p className="experience-kicker">With joy, we invite you</p>
-        <article className="experience-paper"><Portrait src={event.photoUrl} name={event.honoreeName} small />
+        <article className={`experience-paper ${posePreview ? "experience-paper-pose" : ""}`}><Portrait src={event.photoUrl} name={event.honoreeName} small oval={posePreview} /><div className="experience-paper-copy">
           <p className="experience-paper-kicker">The graduation of</p><h1 ref={focus} tabIndex={-1} className="experience-name">{event.honoreeName}</h1>
           {(event.degree || event.classYear) && <p className="experience-credential">{[event.degree, event.classYear && `Class of ${event.classYear}`].filter(Boolean).join(" · ")}</p>}
           {event.school && <p className="experience-school">{event.school}</p>}<Rule />
           <p className="experience-date">{date}</p><p className="experience-time">at {event.time}</p>
           {event.venueName && <p className="experience-venue">{event.venueName}</p>}
-          <button type="button" className="experience-rsvp-call" onClick={() => go("respond")}>{answer ? "Review your RSVP" : "Will you join us? RSVP"}</button>
+          <button type="button" className="experience-rsvp-call" onClick={() => go("respond")}>{answer ? "Review your RSVP" : "Will you join us? RSVP"}</button></div>
         </article>
       </motion.section>}
       {stage === "explore" && <motion.section key="explore" className="experience-scene" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
