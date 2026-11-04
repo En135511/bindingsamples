@@ -252,7 +252,7 @@ body {
   .experience-portrait-oval { width: min(136px, 35vw); margin-bottom: 4px; }
 }
 @media (max-width: 500px) and (min-height: 501px) {
-  .experience-stage { padding-top: 48px; padding-bottom: 12px; }
+  .experience-stage { padding-top: 48px; padding-bottom: 0; }
   .experience-kicker { margin-bottom: 5px; }
   .experience-paper-pose { display: block; width: min(100%, 380px); margin-top: 4px; padding: 13px 20px 16px; }
   .experience-paper-pose .experience-portrait-oval { width: clamp(100px, calc(30dvh - 60px), 180px); margin: 0 auto 5px; }
