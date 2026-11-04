@@ -9,7 +9,7 @@ import { dateParts, formatLongDate, formatTime } from "@/lib/datetime";
 import { addressee, isPlural, youFor } from "@/lib/invites";
 import { eventInstants, getBaseUrl, googleCalendarUrl, mapsUrl } from "@/lib/links";
 import { getInvitation } from "./data";
-import { Invitation } from "./Invitation";
+import { Experience } from "./Experience";
 
 // Link-preview fetchers (WhatsApp, etc.) shouldn't count as the guest opening the invite.
 const PREVIEW_BOTS =
@@ -56,7 +56,7 @@ export default async function InvitationPage({ params, searchParams }: PageProps
   }
 
   return (
-    <Invitation
+    <Experience
       token={token}
       guest={{
         addressee: addressee(guest),

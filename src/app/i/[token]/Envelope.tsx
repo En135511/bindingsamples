@@ -4,13 +4,9 @@ import { motion } from "framer-motion";
 import { MortarboardIcon } from "@/components/MortarboardIcon";
 
 export function Envelope({
-  guestName,
-  photoUrl,
   opening,
   onOpen,
 }: {
-  guestName: string;
-  photoUrl: string | null;
   opening: boolean;
   onOpen: () => void;
 }) {
@@ -18,39 +14,8 @@ export function Envelope({
     <motion.div
       exit={{ opacity: 0, scale: 1.08 }}
       transition={{ duration: 0.5 }}
-      className="relative flex min-h-dvh flex-col items-center justify-center gap-12 overflow-hidden px-6 py-10"
+      className="relative flex flex-col items-center justify-center gap-5 overflow-visible py-4"
     >
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9 }}
-        className="text-center"
-      >
-        {photoUrl && (
-          <div className="relative mx-auto mb-5 grid h-32 w-32 place-items-center sm:h-36 sm:w-36">
-            <svg aria-hidden="true" viewBox="0 0 160 160" className="absolute inset-0 h-full w-full" fill="none">
-              <circle cx="80" cy="80" r="64" stroke="#d8bc78" strokeWidth="2" />
-              <circle cx="80" cy="80" r="69" stroke="#ead7a2" strokeOpacity=".7" />
-              {Array.from({ length: 12 }, (_, index) => {
-                const angle = (index * 30 * Math.PI) / 180;
-                const x = 80 + Math.cos(angle) * 66;
-                const y = 80 + Math.sin(angle) * 66;
-                return (
-                  <g key={index} transform={`translate(${x} ${y}) rotate(${index * 30 + 45})`}>
-                    <path d="M0 0C-6-6-6-14 0-18 6-14 6-6 0 0Z" fill="#536f51" stroke="#d8bc78" />
-                  </g>
-                );
-              })}
-            </svg>
-            <img src={photoUrl} alt="" className="h-[78%] w-[78%] rounded-full border-2 border-gold-200 object-cover object-[50%_22%] shadow-lg" />
-          </div>
-        )}
-        <p className="mb-5 text-[10px] tracking-[0.42em] text-gold-300/75 uppercase">
-          A special invitation for
-        </p>
-        <h1 className="gold-text mt-2 px-2 py-1 font-script text-5xl leading-[1.3] text-balance sm:text-6xl">{guestName}</h1>
-      </motion.div>
-
       <motion.button
         type="button"
         onClick={onOpen}
@@ -61,7 +26,7 @@ export function Envelope({
         animate={{ opacity: 1, y: 0 }}
         whileHover={opening ? undefined : { scale: 1.02, rotate: -0.5 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative aspect-[3/2] w-[min(88vw,460px)] cursor-pointer [perspective:1200px] drop-shadow-[0_28px_44px_rgba(0,0,0,.38)]"
+        className="relative aspect-[3/2] w-[min(82vw,390px)] cursor-pointer [perspective:1200px] drop-shadow-[0_28px_44px_rgba(0,0,0,.38)]"
       >
         {/* Inside of the envelope */}
         <div className="absolute inset-0 rounded-md bg-navy-950 shadow-[0_25px_60px_rgba(0,0,0,0.6)] ring-1 ring-gold-300/50" />
@@ -128,7 +93,7 @@ export function Envelope({
         initial={{ opacity: 0 }}
         animate={{ opacity: opening ? 0 : [0.4, 1, 0.4] }}
         transition={opening ? { duration: 0.3 } : { duration: 2.4, repeat: Infinity }}
-        className="text-sm tracking-wide text-gold-200/80"
+        className="font-body text-lg italic tracking-wide text-gold-200/80"
       >
         Tap the envelope to open
       </motion.p>

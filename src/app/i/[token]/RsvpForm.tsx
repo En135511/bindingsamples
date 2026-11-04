@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { RsvpStatus } from "@/db/schema";
 import { seatsPhrase } from "@/lib/invites";
 import { submitRsvp, type RsvpState } from "./actions";
-import type { InvitationGuest } from "./Invitation";
+import type { InvitationGuest } from "./types";
 
 type Answer = Exclude<RsvpStatus, "pending">;
 
@@ -14,16 +14,20 @@ export function RsvpForm({
   guest,
   honoreeFirstName,
   eventLinks,
+  onSaved,
+  forceEdit = false,
 }: {
   token: string;
   guest: InvitationGuest;
   honoreeFirstName: string;
   eventLinks: { mapUrl: string | null; googleCalendarUrl: string; icsUrl: string };
+  onSaved?: (status: Answer) => void;
+  forceEdit?: boolean;
 }) {
   const [answer, setAnswer] = useState<Answer | null>(guest.status === "pending" ? null : guest.status);
   // Seats an acceptance holds: what they answered before, or all of the invitation's seats.
   const [acceptedSeats, setAcceptedSeats] = useState(guest.acceptedSeats ?? guest.seats);
-  const [editing, setEditing] = useState(answer === null);
+  const [editing, setEditing] = useState(forceEdit || answer === null);
   const [choice, setChoice] = useState<Answer | null>(answer);
   const [announcement, setAnnouncement] = useState("");
   // Only move focus after the guest did something, never when the page first loads. The panels
@@ -45,6 +49,7 @@ export function RsvpForm({
         setEditing(false);
         setAnnouncement(status === "attending" ? "Your RSVP has been sent: attending." : "Your RSVP has been sent.");
         moveFocus.current = true;
+        onSaved?.(status);
       }
       return result;
     },
@@ -137,7 +142,7 @@ export function RsvpForm({
               startTransition(() => formAction(data));
             }}
             aria-labelledby="rsvp-heading"
-            className="mx-auto max-w-md space-y-5 text-left"
+            className="mx-auto max-w-md space-y-3 text-left"
           >
             <p className="text-center font-body text-xl text-pretty text-stone-700">
               We have reserved <strong className="font-semibold text-navy-900">{seatsPhrase(guest.seats)}</strong>{" "}
@@ -154,7 +159,7 @@ export function RsvpForm({
               ).map(([value, adverb, word], i) => (
                 <label
                   key={value}
-                  className={`flex cursor-pointer flex-col items-center justify-center rounded-md border px-3 py-3 leading-tight transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-navy-700 ${
+                  className={`flex cursor-pointer flex-col items-center justify-center rounded-md border px-3 py-2 leading-tight transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-navy-700 ${
                     choice === value
                       ? "border-navy-900 bg-navy-900 text-gold-200 shadow-md"
                       : "border-navy-900/25 text-navy-900 hover:border-gold-500"
@@ -177,18 +182,20 @@ export function RsvpForm({
               ))}
             </fieldset>
 
-            <label className="block">
-              <span className="mb-1.5 block text-sm text-stone-600">Leave {honoreeFirstName} a note (optional)</span>
-              <span className="mb-2 block font-body text-base text-stone-500 italic">Share a memory, a congratulatory wish, or a song request for the celebration.</span>
-              <textarea
-                name="note"
-                rows={3}
-                maxLength={1000}
-                defaultValue={guest.note ?? ""}
-                placeholder="Write a little something from the heart…"
-                className="w-full rounded-md border border-navy-900/25 bg-white/80 px-3 py-2 font-body text-lg focus:border-gold-700 focus:outline-2 focus:outline-offset-1 focus:outline-gold-700"
-              />
-            </label>
+            <details className="experience-note-disclosure">
+              <summary>{guest.note ? "Edit your note" : "Add a personal note (optional)"}</summary>
+              <label className="mt-3 block">
+                <span className="mb-2 block font-body text-base text-stone-500 italic">Share a memory, a wish, or a song request for {honoreeFirstName}.</span>
+                <textarea
+                  name="note"
+                  rows={3}
+                  maxLength={1000}
+                  defaultValue={guest.note ?? ""}
+                  placeholder="Write a little something from the heart…"
+                  className="w-full rounded-md border border-navy-900/25 bg-white/80 px-3 py-2 font-body text-lg focus:border-gold-700 focus:outline-2 focus:outline-offset-1 focus:outline-gold-700"
+                />
+              </label>
+            </details>
 
             {state?.error && (
               <p role="alert" className="text-sm text-red-700">
@@ -199,7 +206,7 @@ export function RsvpForm({
             <button
               disabled={!choice}
               aria-disabled={pending || !choice}
-              className="w-full rounded-md bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 px-4 py-3.5 font-medium tracking-wide text-navy-950 shadow transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-700 disabled:opacity-50 aria-disabled:opacity-50"
+              className="mx-auto block min-h-10 min-w-40 rounded-full bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 px-5 py-2 font-medium tracking-wide text-navy-950 shadow transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy-700 disabled:opacity-50 aria-disabled:opacity-50"
             >
               {pending ? "Sending…" : "Send my RSVP"}
             </button>
