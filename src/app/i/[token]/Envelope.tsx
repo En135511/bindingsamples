@@ -14,7 +14,7 @@ export function Envelope({
     <motion.div
       exit={{ opacity: 0, scale: 1.08 }}
       transition={{ duration: 0.5 }}
-      className="relative flex flex-col items-center justify-center gap-5 overflow-visible py-4"
+      className="relative flex flex-col items-center justify-center gap-2 overflow-visible"
     >
       <motion.button
         type="button"

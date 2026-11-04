@@ -13,7 +13,7 @@ import { Confetti } from "./Confetti";
 import { Countdown } from "./Countdown";
 import { RsvpForm } from "./RsvpForm";
 
-type Stage = "welcome" | "envelope" | "opening" | "reveal" | "explore" | "respond" | "complete";
+type Stage = "envelope" | "opening" | "reveal" | "explore" | "respond" | "complete";
 type Answer = Exclude<RsvpStatus, "pending">;
 const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
@@ -38,9 +38,8 @@ const Rule = () => <div className="experience-rule" aria-hidden="true"><span>✦
 
 export function Experience({ token, guest, event }: { token: string; guest: InvitationGuest; event: InvitationEvent }) {
   const reduceMotion = useReducedMotion();
-  const [stage, setStage] = useState<Stage>("welcome");
+  const [stage, setStage] = useState<Stage>("envelope");
   const [answer, setAnswer] = useState<Answer | null>(guest.status === "pending" ? null : guest.status);
-  const [editingResponse, setEditingResponse] = useState(false);
   const [exploreView, setExploreView] = useState<"place" | "countdown" | "message">("place");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const focus = useRef<HTMLHeadingElement>(null);
@@ -55,27 +54,21 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
     setStage("opening");
     timer.current = setTimeout(() => go("reveal"), 1800);
   };
-  const number = { welcome: 1, envelope: 2, opening: 2, reveal: 3, explore: 4, respond: 5, complete: 6 }[stage];
+  const number = { envelope: 1, opening: 1, reveal: 2, explore: 3, respond: 4, complete: 5 }[stage];
   const date = `${event.date.weekday}, ${event.date.month} ${event.date.day}, ${event.date.year}`;
   const links = { mapUrl: event.mapUrl, googleCalendarUrl: event.googleCalendarUrl, icsUrl: event.icsUrl };
 
   return <MotionConfig reducedMotion="user"><main className="night-sky experience-shell flex-1"><div className="experience-stage">
-    {stage === "welcome" || stage === "envelope" || stage === "opening" ?
-      <div className="experience-chrome" aria-hidden="true"><span>{event.title}</span><span>{String(number).padStart(2, "0")} / 06</span></div> :
+    {stage === "envelope" || stage === "opening" ?
+      <div className="experience-chrome" aria-hidden="true"><span>{event.title}</span><span>{String(number).padStart(2, "0")} / 05</span></div> :
       <nav className="experience-quick-nav" aria-label="Invitation sections">
         <button type="button" aria-current={stage === "reveal" ? "step" : undefined} onClick={() => go("reveal")}>Invitation</button>
         <button type="button" aria-current={stage === "explore" ? "step" : undefined} onClick={() => go("explore")}>Details</button>
-        <button type="button" aria-current={stage === "respond" || stage === "complete" ? "step" : undefined} onClick={() => go(answer && !editingResponse ? "complete" : "respond")}>RSVP</button>
+        <button type="button" aria-current={stage === "respond" || stage === "complete" ? "step" : undefined} onClick={() => go("respond")}>RSVP</button>
       </nav>}
     <AnimatePresence mode="wait">
-      {stage === "welcome" && <motion.section key="welcome" className="experience-scene" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
-        <p className="experience-kicker">A personal invitation for</p><Portrait src={event.photoUrl} name={event.honoreeName} />
-        <h1 ref={focus} tabIndex={-1} className="experience-script">{keepHonorificsTogether(guest.addressee)}</h1>
-        <p className="experience-subtitle">A little something special is waiting for {guest.you}.</p>
-        <button className="experience-primary" onClick={() => go("envelope")}>See your invitation</button>
-      </motion.section>}
       {(stage === "envelope" || stage === "opening") && <motion.section key="envelope" className="experience-scene" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.04 }}>
-        <h1 ref={focus} tabIndex={-1} className="experience-kicker">Made for {guest.addressee}</h1>
+        <div className="experience-opening-intro"><Portrait src={event.photoUrl} name={event.honoreeName} small /><div><p className="experience-kicker">An invitation for</p><h1 ref={focus} tabIndex={-1} className="experience-script">{keepHonorificsTogether(guest.addressee)}</h1></div></div>
         <Envelope opening={stage === "opening"} onOpen={open} />
       </motion.section>}
       {stage === "reveal" && <motion.section key="reveal" className="experience-scene" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
@@ -87,7 +80,8 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
           {event.school && <p className="experience-school">{event.school}</p>}<Rule />
           <p className="experience-date">{date}</p><p className="experience-time">at {event.time}</p>
           {event.venueName && <p className="experience-venue">{event.venueName}</p>}
-        </article><button className="experience-primary" onClick={() => go("explore")}>Explore the celebration</button>
+          <button type="button" className="experience-rsvp-call" onClick={() => go("respond")}>{answer ? "Review your RSVP" : "Will you join us? RSVP"}</button>
+        </article>
       </motion.section>}
       {stage === "explore" && <motion.section key="explore" className="experience-scene" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
         <p className="experience-kicker">Make the day yours</p><article className="experience-paper">
@@ -106,23 +100,22 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
           </div> : exploreView === "countdown" ? <div role="tabpanel" className="experience-explore-panel"><Rule />
             <p className="experience-paper-kicker">Counting down to the celebration</p><Countdown startsAtIso={event.startsAtIso} />
             <p className="experience-soft">Save the date so it is close at hand.</p>
-            <div className="experience-links"><a href={event.googleCalendarUrl} target="_blank" rel="noreferrer">Google Calendar</a><a href={event.icsUrl}>Apple / Outlook</a></div>
+            <details className="experience-calendar"><summary>Add to calendar</summary><div className="experience-links"><a href={event.googleCalendarUrl} target="_blank" rel="noreferrer">Google Calendar</a><a href={event.icsUrl}>Apple / Outlook</a></div></details>
           </div> : <div role="tabpanel" className="experience-explore-panel"><Rule /><p className="experience-message">“{event.message}”</p><p className="experience-soft">With love, {firstName(event.honoreeName)}</p></div>}
-        </article><div className="experience-nav"><button className="experience-back" onClick={() => go("reveal")}>Back</button><button className="experience-primary" onClick={() => go(answer ? "complete" : "respond")}>{answer ? "View your reply" : "Reply to your invitation"}</button></div>
+        </article>
       </motion.section>}
       {stage === "respond" && <motion.section key="respond" className="experience-scene" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
         <p className="experience-kicker">A reply makes it feel personal</p><article className="experience-paper">
           <p className="experience-paper-kicker">Kindly respond</p><h1 ref={focus} tabIndex={-1} id="rsvp-heading" className="experience-name experience-name-small">Will you join us?</h1>
           {event.rsvpBy && <p className="experience-soft">Please reply by {event.rsvpBy}.</p>}<Rule />
-          <RsvpForm token={token} guest={{ ...guest, status: answer ?? "pending" }} honoreeFirstName={firstName(event.honoreeName)} eventLinks={links} forceEdit={Boolean(answer)} onSaved={(status) => { setAnswer(status); setEditingResponse(false); go("complete"); }} />
-        </article><button className="experience-back" onClick={() => go("explore")}>Back to details</button>
+          <RsvpForm token={token} guest={{ ...guest, status: answer ?? "pending" }} honoreeFirstName={firstName(event.honoreeName)} eventLinks={links} forceEdit={Boolean(answer)} onSaved={(status) => { setAnswer(status); go("complete"); }} />
+        </article>
       </motion.section>}
       {stage === "complete" && <motion.section key="complete" className="experience-scene" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
         <p className="experience-kicker">After your reply</p><div className="experience-star" aria-hidden="true">✦</div>
         <h1 ref={focus} tabIndex={-1} className="experience-finale">{answer === "declined" ? "You'll be missed." : "You're part of the story."}</h1>
         <p className="experience-subtitle">{answer === "declined" ? `Thank you for letting ${firstName(event.honoreeName)} know.` : `Your reply is saved. We can't wait to celebrate with ${guest.you}.`}</p>
-        <div className="experience-final-links">{answer === "attending" && <><a href={event.googleCalendarUrl} target="_blank" rel="noreferrer">Save the date</a><a href={event.icsUrl}>Apple / Outlook</a>{event.mapUrl && <a href={event.mapUrl} target="_blank" rel="noreferrer">Open directions</a>}</>}<button onClick={() => { setEditingResponse(true); go("respond"); }}>Change my response</button></div>
-        <button className="experience-back" onClick={() => go("reveal")}>View the invitation again</button>
+        <div className="experience-final-links">{answer === "attending" && event.mapUrl && <a href={event.mapUrl} target="_blank" rel="noreferrer">Open directions</a>}<button onClick={() => go("respond")}>Change my response</button></div>
       </motion.section>}
     </AnimatePresence>
   </div></main></MotionConfig>;
