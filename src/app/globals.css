@@ -214,7 +214,9 @@ body {
   .experience-stage { padding: 76px 14px 45px; }
   .experience-chrome { right: 16px; left: 16px; }
   .experience-portrait { width: min(245px, 68vw); }
-  .experience-portrait-oval { width: min(174px, 44vw); }
+  .experience-portrait-oval { width: min(174px, 44vw); padding: 5px; border: 1px solid #a58045; border-radius: 2px; background: linear-gradient(145deg, #f8ebc8, #c5a05e 55%, #f4dfae); box-shadow: 0 0 0 2px #ead5a4, 0 14px 29px #050b1c77; }
+  .experience-portrait-oval .experience-frame { display: none; }
+  .experience-portrait-oval .experience-portrait-image { width: 100%; height: 100%; border: 1px solid #fff6df; border-radius: 0; box-shadow: none; }
   .experience-paper { margin-top: 10px; }
   .experience-paper-pose { gap: 12px; padding: 15px 12px; }
   .experience-paper-pose .experience-name { font-size: clamp(1.45rem, 6vw, 1.9rem); }
@@ -255,7 +257,7 @@ body {
   .experience-stage { padding-top: 48px; padding-bottom: 0; }
   .experience-kicker { margin-bottom: 5px; }
   .experience-reveal-scene > .experience-kicker { display: none; }
-  .experience-paper-pose { --portrait-size: clamp(100px, calc(30dvh - 60px), 180px); display: block; width: min(100%, 380px); margin-top: 4px; padding: calc(var(--portrait-size) * .78 + 5px) 20px 16px; }
+  .experience-paper-pose { --portrait-size: clamp(115px, calc(30dvh - 60px), 190px); display: block; width: min(100%, 380px); margin-top: 4px; padding: calc(var(--portrait-size) * .78 + 5px) 20px 16px; }
   .experience-paper-pose .experience-portrait-oval { position: absolute; z-index: 1; top: calc(var(--portrait-size) * -.55); left: 50%; width: var(--portrait-size); margin: 0; transform: translateX(-50%); }
   .experience-paper-pose .experience-name { font-size: clamp(1.75rem, 8vw, 2.2rem); }
   .experience-paper-pose .experience-credential { font-size: 1rem; }
@@ -271,6 +273,6 @@ body {
   .experience-paper-pose .experience-rule { margin: 14px auto; }
 }
 @media (max-width: 340px) and (min-height: 501px) {
-  .experience-paper-pose { margin-top: 24px; }
+  .experience-paper-pose { margin-top: 34px; }
 }
 @media (prefers-reduced-motion: reduce) { .experience-rsvp-call { transition: none; } }
