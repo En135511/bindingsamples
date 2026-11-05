@@ -52,7 +52,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/admin and log in with username **`owner`** and password **`admin`**.
+With the built-in local database, open http://localhost:3000/admin and log in with username
+**`owner`** and password **`admin`**. With a shared database, set `ADMIN_PASSWORD` first.
 On first login you must choose a different username and a new password of at least 12 characters.
 
 No database setup is needed. When `DATABASE_URL` isn't set, the app uses a built-in database
@@ -71,7 +72,7 @@ Optional settings go in a `.env` file (copy `.env.example` and uncomment what yo
 ## Owner and host accounts
 
 The first login creates the system owner using username `owner` and `ADMIN_PASSWORD` (or `admin`
-in local development). Existing events are assigned to that owner. The first login requires a new
+with the built-in local database only). Existing events are assigned to that owner. The first login requires a new
 username and password. After this setup, `ADMIN_PASSWORD` is only a bootstrap value; changing it
 in the environment will not change the owner's chosen password.
 

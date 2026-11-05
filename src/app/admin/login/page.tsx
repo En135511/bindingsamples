@@ -13,9 +13,7 @@ export default function LoginPage() {
         <label className="block"><span className="label">Username</span><input name="username" required autoFocus autoComplete="username" className="input" /></label>
         <label className="block"><span className="label">Password</span><input type="password" name="password" required autoComplete="current-password" className="input" /></label>
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-        {process.env.NODE_ENV === "development" && (
-          <p className="text-xs text-stone-600">First local login: username <code>owner</code>. Use <code>ADMIN_PASSWORD</code>, or <code>admin</code> if it is unset.</p>
-        )}
+        <p className="text-xs text-stone-600">First login? Use username <code>owner</code> and your site&apos;s initial owner password.</p>
         <button disabled={pending} className="btn-primary w-full">{pending ? "Checking…" : "Log in"}</button>
       </form>
     </main>

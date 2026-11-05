@@ -8,7 +8,7 @@ export const DEV_PASSWORD = "admin";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 
 export function initialOwnerPassword() {
-  return process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === "production" ? null : DEV_PASSWORD);
+  return process.env.ADMIN_PASSWORD || (process.env.NODE_ENV !== "production" && !process.env.DATABASE_URL ? DEV_PASSWORD : null);
 }
 
 export function validUsername(value: string) {
