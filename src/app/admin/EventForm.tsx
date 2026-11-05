@@ -21,7 +21,7 @@ function Field({
     <label className={className}>
       <span className="label">{label}</span>
       <input name={name} className="input" {...rest} />
-      {hint && <span className="mt-1 block text-xs text-stone-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs text-stone-600">{hint}</span>}
     </label>
   );
 }

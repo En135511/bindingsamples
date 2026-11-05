@@ -1,12 +1,29 @@
-import { customType, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, customType, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import type { InviteType } from "../lib/invites";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
 });
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").$type<"owner" | "host">().notNull().default("host"),
+  mustChangeCredentials: boolean("must_change_credentials").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const sessions = pgTable("sessions", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
+  ownerId: integer("owner_id").references(() => users.id, { onDelete: "restrict" }),
   title: text("title").notNull().default("Graduation Celebration"),
   honoreeName: text("honoree_name").notNull(),
   degree: text("degree"),
@@ -64,3 +81,4 @@ export const guests = pgTable("guests", {
 
 export type Event = typeof events.$inferSelect;
 export type Guest = typeof guests.$inferSelect;
+export type User = typeof users.$inferSelect;

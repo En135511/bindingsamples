@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { eventPhotos, events, guests } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireEventAccess } from "@/lib/auth";
 import { isValidTimeZone } from "@/lib/datetime";
 import { parseGuestLines } from "@/lib/guest-lines";
 import { addressee, DEFAULT_FAMILY_SEATS, isInviteType, seatsFor } from "@/lib/invites";
@@ -53,10 +53,10 @@ function parseEvent(formData: FormData) {
 }
 
 export async function createEvent(_prev: FormState, formData: FormData): Promise<FormState> {
-  await requireAdmin();
+  const user = await requireAdmin();
   const parsed = parseEvent(formData);
   if ("error" in parsed) return { error: parsed.error };
-  const [event] = await db.insert(events).values(parsed.values).returning({ id: events.id });
+  const [event] = await db.insert(events).values({ ...parsed.values, ownerId: user.id }).returning({ id: events.id });
   redirect(`/admin/events/${event.id}`);
 }
 
@@ -65,7 +65,7 @@ export async function updateEvent(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   const parsed = parseEvent(formData);
   if ("error" in parsed) return { error: parsed.error };
   await db.update(events).set(parsed.values).where(eq(events.id, eventId));
@@ -78,7 +78,7 @@ export async function addGuests(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   const parsed = parseGuestLines(String(formData.get("guests") ?? ""));
   if (parsed.length === 0) return { error: "Add at least one name." };
 
@@ -128,7 +128,7 @@ export async function addGuest(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Please enter who the invitation is for." };
   const inviteType = formData.get("inviteType");
@@ -148,7 +148,7 @@ export async function addGuest(
 
 /** Change a guest's name, invite type and/or seats. Accepted invitations keep counting all seats. */
 export async function updateGuest(eventId: number, guestId: number, formData: FormData) {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   const [guest] = await db
     .select()
     .from(guests)
@@ -182,7 +182,7 @@ export async function updateGuest(eventId: number, guestId: number, formData: Fo
 }
 
 export async function deleteGuest(eventId: number, guestId: number) {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   await db.delete(guests).where(and(eq(guests.id, guestId), eq(guests.eventId, eventId)));
   revalidatePath(`/admin/events/${eventId}`);
 }
@@ -192,7 +192,7 @@ export async function uploadPhoto(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   const file = formData.get("photo");
   if (!(file instanceof File) || file.size === 0) return { error: "Please choose a photo." };
   if (!PHOTO_TYPES.includes(file.type)) return { error: "Please choose a JPG, PNG or WebP photo." };
@@ -209,8 +209,15 @@ export async function uploadPhoto(
 }
 
 export async function removePhoto(eventId: number) {
-  await requireAdmin();
+  await requireEventAccess(eventId);
   await db.delete(eventPhotos).where(eq(eventPhotos.eventId, eventId));
   await db.update(events).set({ photoUpdatedAt: null }).where(eq(events.id, eventId));
   revalidatePath(`/admin/events/${eventId}`);
+}
+
+export async function deleteEvent(eventId: number) {
+  await requireEventAccess(eventId);
+  await db.delete(events).where(eq(events.id, eventId));
+  revalidatePath("/admin");
+  redirect("/admin");
 }

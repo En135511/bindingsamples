@@ -29,6 +29,13 @@
       "when": 1791279793297,
       "tag": "0003_invite_types",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793884029350,
+      "tag": "0004_curvy_smasher",
+      "breakpoints": true
     }
   ]
 }

@@ -1,12 +1,13 @@
 // Runs before `npm run dev`. Without DATABASE_URL, the app uses a built-in database in .data/;
 // this creates or updates its tables. With DATABASE_URL, run `npm run db:migrate` instead.
-import { existsSync, mkdirSync } from "node:fs";
+import { mkdirSync } from "node:fs";
+import nextEnv from "@next/env";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import lock from "./local-db-lock.cjs";
 
-if (existsSync(".env")) process.loadEnvFile(".env");
+nextEnv.loadEnvConfig(process.cwd());
 
 if (process.env.DATABASE_URL) {
   console.log("DATABASE_URL is set — skipping the built-in local database.");

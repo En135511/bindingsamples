@@ -13,7 +13,7 @@ is coming from a private dashboard.
 
 ## How it works
 
-1. Go to `/admin`, log in with your password and create your event.
+1. Go to `/admin`, log in as the system owner, choose your private username and password, and create your event.
    Upload a photo of yourself under **Your photo** on the event page.
 2. Add invitations. For each one choose who it's for — you decide the seats, guests only
    accept or decline:
@@ -52,7 +52,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/admin and log in with the password **`admin`**.
+Open http://localhost:3000/admin and log in with username **`owner`** and password **`admin`**.
+On first login you must choose a different username and a new password of at least 12 characters.
 
 No database setup is needed. When `DATABASE_URL` isn't set, the app uses a built-in database
 saved in the `.data/` folder. Only one copy of the app can use it at a time, so run `npm run dev`
@@ -64,8 +65,25 @@ from the dashboard there. Guest links copied from the dashboard use whatever add
 it with.
 
 Optional settings go in a `.env` file (copy `.env.example` and uncomment what you need):
-`ADMIN_PASSWORD` to change the password, and `DATABASE_URL` to use a real Postgres database
+`ADMIN_PASSWORD` to set the owner's initial password, and `DATABASE_URL` to use a real Postgres database
 (then run `npm run db:migrate` once).
+
+## Owner and host accounts
+
+The first login creates the system owner using username `owner` and `ADMIN_PASSWORD` (or `admin`
+in local development). Existing events are assigned to that owner. The first login requires a new
+username and password. After this setup, `ADMIN_PASSWORD` is only a bootstrap value; changing it
+in the environment will not change the owner's chosen password.
+
+The owner can open **Hosts** in the dashboard, create a host with a temporary username, and copy
+the generated password shown once. Give those credentials to the intended host privately. On
+their first login, they must choose a new username and password. The owner can issue a new
+temporary password if a host needs access restored; this signs out the host everywhere.
+
+Hosts create, edit, and delete their own events and guest invitations. They cannot access another
+host's event dashboard, photo, or admin actions. The owner can see and manage every event.
+Deleting an event also deletes its guest links and RSVP responses, so review the confirmation
+carefully.
 
 Other commands: `npm run lint`, `npm run typecheck`, `npm run build`.
 After changing `src/db/schema.ts`, run `npm run db:generate` to create a new migration.
@@ -88,7 +106,8 @@ After changing `src/db/schema.ts`, run `npm run db:generate` to create a new mig
    update that UI setting too.
 4. If secrets scanning flags generated Turbopack cache files, configure Netlify to omit that
    generated cache directory from secret scanning. Keep secrets scanning enabled.
-5. Trigger a deploy. After it succeeds, open `/admin` and log in.
+5. Trigger a deploy. After it succeeds, open `/admin`, log in as `owner` with `ADMIN_PASSWORD`,
+   and choose your new private credentials.
 
 The built-in `.data/` database is for local development only; Netlify needs a persistent database.
 The app now reports a clear error if production starts without `DATABASE_URL`.
@@ -110,7 +129,8 @@ Render's own free Postgres is deleted after 30 days, which is why we use Neon.
    GitHub if asked, and select this repository. Render reads `render.yaml`.
 2. When asked, paste the Neon connection string as `DATABASE_URL` and choose an `ADMIN_PASSWORD`.
 3. Click **Apply**. The first build takes a few minutes and creates the database tables.
-4. Open `https://<your-service>.onrender.com/admin` and log in.
+4. Open `https://<your-service>.onrender.com/admin`, log in as `owner` with `ADMIN_PASSWORD`,
+   and choose your new private credentials.
 
 If Render deploys from a branch other than the one containing this code, change the branch under
 the service's **Settings → Build & Deploy → Branch**.
@@ -135,7 +155,7 @@ that domain.
 src/
   app/
     api/health/            Health check for Render and uptime monitors
-    admin/                 Host dashboard (password protected by src/proxy.ts)
+    admin/                 Owner and host dashboards, account setup, and event management
     i/[token]/             The guest's invitation page
       Envelope.tsx         Sealed-envelope opening animation
       Invitation.tsx       The invitation card
@@ -143,7 +163,7 @@ src/
       opengraph-image.tsx  WhatsApp/social link preview image
       calendar/route.ts    .ics download for Apple/Outlook calendars
   db/schema.ts             Database tables (events, guests)
-  lib/                     Auth, date/time and link helpers
+  lib/                     Auth, session, date/time and link helpers
 drizzle/                   SQL migrations
 ```
 
@@ -152,4 +172,3 @@ drizzle/                   SQL migrations
 - More themes (wedding, birthday) and a theme picker
 - Guest-count limits, meal choices, plus-one names
 - Reminders before the RSVP deadline
-- Multiple hosts with their own accounts

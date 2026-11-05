@@ -1,24 +1,20 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { events, guests } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth";
+import { guests } from "@/db/schema";
+import { requireEventAccess } from "@/lib/auth";
 import { formatLongDate, formatTime } from "@/lib/datetime";
 import { getBaseUrl, invitationPath, whatsappShareUrl } from "@/lib/links";
-import { addGuest, addGuests, removePhoto, updateEvent, uploadPhoto } from "../../actions";
+import { addGuest, addGuests, deleteEvent, removePhoto, updateEvent, uploadPhoto } from "../../actions";
 import { EventForm } from "../../EventForm";
 import { AddGuestForm, BulkAddGuests } from "./AddGuestForm";
 import { GuestRow } from "./GuestRow";
 import { PhotoUpload } from "./PhotoUpload";
+import { DeleteEventForm } from "./DeleteEventForm";
 
 export default async function EventAdminPage({ params }: PageProps<"/admin/events/[id]">) {
-  await requireAdmin();
   const id = Number((await params).id);
-  if (!Number.isInteger(id)) notFound();
-
-  const event = await db.query.events.findFirst({ where: eq(events.id, id) });
-  if (!event) notFound();
+  const { event, user } = await requireEventAccess(id);
   const guestList = await db
     .select()
     .from(guests)
@@ -48,13 +44,13 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
   return (
     <main className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8">
       <div>
-        <Link href="/admin" className="text-sm text-stone-500 hover:text-stone-900">
-          ← All events
+        <Link href="/admin" className="text-sm text-stone-200 hover:text-white">
+          ← {user.role === "owner" ? "All events" : "Your events"}
         </Link>
         <h1 className="mt-2 font-serif text-3xl">
           {event.honoreeName} — {event.title}
         </h1>
-        <p className="text-stone-500">
+        <p className="text-stone-200">
           {formatLongDate(event.startsAt)} at {formatTime(event.startsAt)}
           {event.venueName && ` · ${event.venueName}`}
         </p>
@@ -62,15 +58,15 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl bg-white p-4 shadow-sm">
+          <div key={s.label} className="rounded-xl bg-white p-4 text-stone-900 shadow-sm">
             <p className="text-2xl font-semibold">{s.value}</p>
-            <p className="text-xs text-stone-500">{s.label}</p>
-            {s.sub && <p className="text-xs text-stone-400">{s.sub}</p>}
+            <p className="text-xs text-stone-700">{s.label}</p>
+            {s.sub && <p className="text-xs text-stone-600">{s.sub}</p>}
           </div>
         ))}
       </section>
 
-      <section className="rounded-xl bg-white p-6 shadow-sm">
+      <section className="rounded-xl bg-white p-6 text-stone-900 shadow-sm">
         <h2 className="mb-1 font-serif text-xl">Guests</h2>
         <p className="mb-4 text-sm text-stone-500">
           Each guest gets their own link. Tap <strong>WhatsApp</strong> to send it, or copy it and
@@ -111,7 +107,7 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
         )}
       </section>
 
-      <section className="rounded-xl bg-white p-6 shadow-sm">
+      <section className="rounded-xl bg-white p-6 text-stone-900 shadow-sm">
         <h2 className="mb-4 font-serif text-xl">Your photo</h2>
         <PhotoUpload
           photoSrc={
@@ -124,9 +120,15 @@ export default async function EventAdminPage({ params }: PageProps<"/admin/event
         />
       </section>
 
-      <section className="rounded-xl bg-white p-6 shadow-sm">
+      <section className="rounded-xl bg-white p-6 text-stone-900 shadow-sm">
         <h2 className="mb-6 font-serif text-xl">Event details</h2>
         <EventForm action={updateEvent.bind(null, event.id)} event={event} submitLabel="Save changes" />
+      </section>
+
+      <section className="rounded-xl border border-red-300/50 p-6 text-stone-100">
+        <h2 className="mb-2 font-serif text-xl">Remove event</h2>
+        <p className="mb-4 text-sm text-stone-200">This also removes its guest links, responses and photo.</p>
+        <DeleteEventForm action={deleteEvent.bind(null, event.id)} />
       </section>
     </main>
   );
