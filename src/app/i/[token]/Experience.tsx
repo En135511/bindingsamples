@@ -9,7 +9,6 @@ import { keepHonorificsTogether } from "@/lib/invites";
 import type { RsvpStatus } from "@/db/schema";
 import type { InvitationGuest, InvitationEvent } from "./types";
 import { Envelope } from "./Envelope";
-import { Confetti } from "./Confetti";
 import { Countdown } from "./Countdown";
 import { RsvpForm } from "./RsvpForm";
 
@@ -18,18 +17,23 @@ type Answer = Exclude<RsvpStatus, "pending">;
 const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
 function Portrait({ src, name }: { src: string | null; name: string }) {
-  return <div className="experience-portrait experience-portrait-oval">
-    <svg aria-hidden="true" viewBox="0 0 400 400" preserveAspectRatio="none" className="experience-frame" fill="none">
-      <ellipse cx="200" cy="200" rx="145" ry="174" stroke="#9e7937" strokeWidth="7" />
-      <ellipse cx="200" cy="200" rx="145" ry="174" stroke="#f4dfaa" strokeWidth="3" />
-      <ellipse cx="200" cy="200" rx="155" ry="184" stroke="#b69556" strokeWidth="1.5" />
-      <path d="M200 8l5 8-5 8-5-8zM200 376l5 8-5 8-5-8z" fill="#caa864" />
-    </svg>
-    <div className="experience-portrait-image">{src ? <Image src={src} alt={name} width={480} height={480} unoptimized priority className="h-full w-full object-cover object-[50%_22%]" /> : <MortarboardIcon className="h-16 w-16 text-gold-300" />}</div>
+  return <div className="experience-portrait-card">
+    <div className="experience-portrait-image">
+      {src ? <>
+        <Image src={src} alt="" aria-hidden="true" width={480} height={600} unoptimized priority className="experience-portrait-backdrop" />
+        <Image src={src} alt={name} width={480} height={600} unoptimized priority className="experience-portrait-photo" />
+      </> : <MortarboardIcon className="experience-portrait-placeholder" />}
+    </div>
   </div>;
 }
 
 const Rule = () => <div className="experience-rule" aria-hidden="true"><span>✦</span></div>;
+
+function DetailIcon({ kind }: { kind: "date" | "place" | "school" }) {
+  if (kind === "date") return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M7 3v4m10-4v4M3 10h18m-13 4h2m4 0h2m-8 4h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
+  if (kind === "place") return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.7 7-12a7 7 0 1 0-14 0c0 5.3 7 12 7 12Z" stroke="currentColor" strokeWidth="1.5" /><circle cx="12" cy="9" r="2.2" stroke="currentColor" strokeWidth="1.5" /></svg>;
+  return <MortarboardIcon aria-hidden="true" />;
+}
 
 export function Experience({ token, guest, event }: { token: string; guest: InvitationGuest; event: InvitationEvent }) {
   const reduceMotion = useReducedMotion();
@@ -67,15 +71,27 @@ export function Experience({ token, guest, event }: { token: string; guest: Invi
         <Envelope opening={stage === "opening"} onOpen={open} />
       </motion.section>}
       {stage === "reveal" && <motion.section key="reveal" className="experience-scene experience-reveal-scene" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
-        {!reduceMotion && <Confetti />}
-        <p className="experience-kicker">With joy, we invite you</p>
-        <article className="experience-paper experience-paper-pose"><Portrait src={event.photoUrl} name={event.honoreeName} /><div className="experience-paper-copy">
-          <p className="experience-paper-kicker">The graduation of</p><h1 ref={focus} tabIndex={-1} className="experience-name">{event.honoreeName}</h1>
-          {(event.degree || event.classYear) && <p className="experience-credential">{[event.degree, event.classYear && `Class of ${event.classYear}`].filter(Boolean).join(" · ")}</p>}
-          {event.school && <p className="experience-school">{event.school}</p>}<Rule />
-          <p className="experience-date">{date}</p><p className="experience-time">at {event.time}</p>
-          {event.venueName && <p className="experience-venue">{event.venueName}</p>}
-          <button type="button" className="experience-rsvp-call" onClick={() => go("respond")}>{answer ? "Review your RSVP" : "Will you join us? RSVP"}</button></div>
+        <article className="experience-invitation-card">
+          <div className="experience-portrait-cluster">
+            <Portrait src={event.photoUrl} name={event.honoreeName} />
+            <div className="experience-seal" aria-label={event.classYear ? `Class of ${event.classYear}` : "Graduation celebration"}>
+              <MortarboardIcon aria-hidden="true" />
+              <span>{event.classYear ? "Class of" : "Celebrate"}</span>
+              {event.classYear && <strong>{event.classYear}</strong>}
+            </div>
+          </div>
+          <div className="experience-invitation-copy">
+            <p className="experience-invite-eyebrow">You&apos;re invited to celebrate</p>
+            <h1 ref={focus} tabIndex={-1} className="experience-invite-name">{event.honoreeName}</h1>
+            <div className="experience-invite-title"><span />{event.title}<span /></div>
+            {(event.degree || event.message) && <p className="experience-invite-quote">{event.message ? `“${event.message}”` : event.degree}</p>}
+          </div>
+          <div className="experience-detail-glass" aria-label="Event at a glance">
+            <div className="experience-detail-item"><DetailIcon kind="date" /><span className="experience-detail-overline">{event.date.weekday}</span><strong>{event.date.month} {event.date.day}, {event.date.year}</strong><span>{event.time}</span></div>
+            <div className="experience-detail-item"><DetailIcon kind="place" /><span className="experience-detail-overline">Venue</span><strong>{event.venueName ?? event.venueAddress ?? "Details to follow"}</strong>{event.venueName && event.venueAddress && <span>{event.venueAddress}</span>}</div>
+            <div className="experience-detail-item"><DetailIcon kind="school" /><span className="experience-detail-overline">{event.classYear ? `Class of ${event.classYear}` : "Graduation"}</span><strong>{event.school ?? event.degree ?? event.title}</strong>{event.school && event.degree && <span>{event.degree}</span>}</div>
+          </div>
+          <button type="button" className="experience-rsvp-call" onClick={() => go("respond")}>{answer ? "Review your RSVP" : "RSVP"}<span aria-hidden="true">→</span></button>
         </article>
       </motion.section>}
       {stage === "explore" && <motion.section key="explore" className="experience-scene" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>

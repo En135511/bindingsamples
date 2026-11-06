@@ -144,12 +144,6 @@ body {
   text-transform: uppercase;
 }
 .experience-kicker { margin-bottom: 18px; }
-.experience-portrait { position: relative; display: grid; place-items: center; width: min(280px, 67vw); aspect-ratio: 1; margin: 0 auto 20px; }
-.experience-portrait-oval { width: min(220px, 51vw); aspect-ratio: 3 / 4; margin-bottom: 12px; }
-.experience-frame { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 6px 7px #0a102a66); }
-.experience-portrait-image { display: grid; place-items: center; width: 69%; height: 69%; overflow: hidden; border: 2px solid #e8d39c; border-radius: 50%; background: #173330; box-shadow: 0 0 0 4px #d8b76833, 0 14px 34px #0007; }
-.experience-portrait-oval .experience-portrait-image { height: 79%; }
-.experience-portrait-oval .experience-portrait-image img { object-position: 50% 50%; }
 .experience-script { color: #efd68e; font: italic 400 clamp(2.3rem, 7vw, 3.8rem)/1.18 var(--font-great-vibes), cursive; text-wrap: balance; }
 .experience-opening-intro { width: min(100%, 390px); margin: 0 auto 17px; text-align: center; }
 .experience-opening-intro .experience-kicker { margin: 0 0 4px; font-size: 9px; }
@@ -165,24 +159,13 @@ body {
 .experience-rsvp-call:hover { background: #294360; }
 .experience-rsvp-call:focus-visible, .experience-calendar summary:focus-visible, .experience-final-links :focus-visible, .experience-links :focus-visible { outline: 2px solid #d8bc78; outline-offset: 3px; }
 .experience-paper { width: min(100%, 440px); margin: 18px auto 22px; padding: 29px clamp(20px, 6vw, 42px) 35px; background: #fffaf0; background-image: radial-gradient(ellipse at top, #e9dbb744, transparent 55%); color: #192a38; box-shadow: 0 25px 65px #0008; }
-.experience-paper-pose { position: relative; display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1fr); align-items: center; gap: 22px; width: min(100%, 590px); padding: 26px; }
-.experience-paper-pose::before { position: absolute; inset: 8px; border: 1px solid #c8ae7899; content: ""; pointer-events: none; }
-.experience-paper-pose .experience-portrait-oval { width: 100%; margin: 0; }
-.experience-paper-pose .experience-paper-copy { min-width: 0; }
-.experience-paper-pose .experience-name { font-size: clamp(1.6rem, 3.4vw, 2.45rem); }
-.experience-paper-pose .experience-credential { font-size: 1rem; }
-.experience-paper-pose .experience-venue { font-size: 1.25rem; }
-.experience-paper-pose .experience-rule { margin: 14px auto; }
 .experience-paper .experience-paper-kicker { color: #94753e; }
 .experience-name { margin: 10px auto; color: #162b47; font: 400 clamp(2.15rem, 6vw, 3.05rem)/1.08 var(--font-playfair), Georgia, serif; letter-spacing: -.035em; text-wrap: balance; }
 .experience-name-small { font-size: clamp(1.9rem, 5vw, 2.55rem); }
-.experience-credential { color: #4a5661; font: italic 1.14rem/1.35 var(--font-cormorant), Georgia, serif; }
-.experience-school { margin-top: 7px; color: #796949; font: 500 10px/1.5 var(--font-inter), sans-serif; letter-spacing: .18em; text-transform: uppercase; }
 .experience-rule { display: flex; align-items: center; gap: 14px; max-width: 220px; margin: 21px auto; color: #ad8b50; }
 .experience-rule::before, .experience-rule::after { content: ""; height: 1px; flex: 1; background: #c9ac73; }
 .experience-rule span { line-height: 1; }
 .experience-date { color: #314558; font: 500 12px/1.5 var(--font-inter), sans-serif; letter-spacing: .11em; text-transform: uppercase; }
-.experience-time { margin-top: 5px; color: #5d6872; font: italic 1.16rem var(--font-cormorant), Georgia, serif; }
 .experience-venue { margin-top: 17px; color: #192e45; font: 400 1.5rem/1.2 var(--font-playfair), Georgia, serif; }
 .experience-soft { margin-top: 10px; color: #566371; font: 400 1.1rem/1.35 var(--font-cormorant), Georgia, serif; }
 .experience-map { margin: 18px auto; overflow: hidden; border: 1px solid #c6aa72; border-radius: 8px; }
@@ -213,18 +196,7 @@ body {
 @media (max-width: 500px) {
   .experience-stage { padding: 76px 14px 45px; }
   .experience-chrome { right: 16px; left: 16px; }
-  .experience-portrait { width: min(245px, 68vw); }
-  .experience-portrait-oval { width: min(174px, 44vw); padding: 5px; border: 1px solid #a58045; border-radius: 2px; background: linear-gradient(145deg, #f8ebc8, #c5a05e 55%, #f4dfae); box-shadow: 0 0 0 2px #ead5a4, 0 14px 29px #050b1c77; }
-  .experience-portrait-oval .experience-frame { display: none; }
-  .experience-portrait-oval .experience-portrait-image { width: 100%; height: 100%; border: 1px solid #fff6df; border-radius: 0; box-shadow: none; }
   .experience-paper { margin-top: 10px; }
-  .experience-paper-pose { gap: 12px; padding: 15px 12px; }
-  .experience-paper-pose .experience-name { font-size: clamp(1.45rem, 6vw, 1.9rem); }
-  .experience-paper-pose .experience-credential { font-size: .88rem; }
-  .experience-paper-pose .experience-school { font-size: 8px; letter-spacing: .11em; }
-  .experience-paper-pose .experience-date { font-size: 10px; letter-spacing: .04em; }
-  .experience-paper-pose .experience-venue { font-size: 1rem; }
-  .experience-paper-pose .experience-rsvp-call { min-height: 36px; padding: 6px 9px; font-size: 10px; }
 }
 @media (max-height: 620px) {
   .experience-stage { padding-top: 43px; padding-bottom: 0; }
@@ -233,46 +205,313 @@ body {
   .experience-subtitle { margin-top: 7px; margin-bottom: 10px; }
   .experience-paper { margin-top: 4px; margin-bottom: 5px; padding-top: 12px; padding-bottom: 13px; }
   .experience-explore-panel { min-height: 0; }
-  .experience-paper-pose { padding-top: 12px; padding-bottom: 12px; }
 }
 @media (max-height: 720px) {
   .experience-paper { padding-top: 16px; padding-bottom: 18px; margin-bottom: 10px; }
-  .experience-portrait-oval { width: min(158px, 40vw); margin-bottom: 7px; }
   .experience-name { font-size: clamp(1.8rem, 6vw, 2.4rem); margin-top: 5px; margin-bottom: 5px; }
   .experience-name-small { font-size: clamp(1.75rem, 5vw, 2.15rem); }
   .experience-rule { margin-top: 11px; margin-bottom: 11px; }
   .experience-venue { margin-top: 9px; font-size: 1.25rem; }
   .experience-soft { margin-top: 5px; font-size: 1rem; }
   .experience-paper-kicker { font-size: 10px; }
-  .experience-school { font-size: 9px; }
   .experience-switch { margin-top: 9px; }
   .experience-explore-panel { min-height: 180px; }
 }
 @media (max-height: 620px) {
   .experience-paper { margin-top: 4px; margin-bottom: 5px; padding-top: 12px; padding-bottom: 13px; }
   .experience-explore-panel { min-height: 0; }
-  .experience-portrait-oval { width: min(136px, 35vw); margin-bottom: 4px; }
-}
-@media (max-width: 500px) and (min-height: 501px) {
-  .experience-stage { padding-top: 48px; padding-bottom: 0; }
-  .experience-kicker { margin-bottom: 5px; }
-  .experience-reveal-scene > .experience-kicker { display: none; }
-  .experience-paper-pose { --portrait-size: clamp(115px, calc(30dvh - 60px), 190px); display: block; width: min(100%, 380px); margin-top: 4px; padding: calc(var(--portrait-size) * .78 + 5px) 20px 16px; }
-  .experience-paper-pose .experience-portrait-oval { position: absolute; z-index: 1; top: calc(var(--portrait-size) * -.55); left: 50%; width: var(--portrait-size); margin: 0; transform: translateX(-50%); }
-  .experience-paper-pose .experience-name { font-size: clamp(1.75rem, 8vw, 2.2rem); }
-  .experience-paper-pose .experience-credential { font-size: 1rem; }
-  .experience-paper-pose .experience-school { font-size: 9px; letter-spacing: .13em; }
-  .experience-paper-pose .experience-date { font-size: 11px; letter-spacing: .07em; }
-  .experience-paper-pose .experience-venue { font-size: 1.15rem; }
-  .experience-paper-pose .experience-rule { margin: 9px auto; }
-  .experience-paper-pose .experience-rsvp-call { min-height: 42px; margin-top: 10px; padding: 8px 15px; font-size: 11px; }
-}
-@media (max-width: 500px) and (min-height: 760px) {
-  .experience-stage { padding-top: 76px; padding-bottom: 45px; }
-  .experience-paper-pose { padding: calc(var(--portrait-size) * .78 + 7px) 24px 23px; }
-  .experience-paper-pose .experience-rule { margin: 14px auto; }
-}
-@media (max-width: 340px) and (min-height: 501px) {
-  .experience-paper-pose { margin-top: 34px; }
 }
 @media (prefers-reduced-motion: reduce) { .experience-rsvp-call { transition: none; } }
+
+/* Reference-inspired invitation: a quiet architectural backdrop, luminous portrait,
+   and bright glass details. The content stays live for each event. */
+.experience-shell {
+  position: relative;
+  overflow: hidden;
+  background-color: #071527;
+  background-image:
+    radial-gradient(ellipse 56% 45% at 50% 30%, #23425d55, transparent 76%),
+    linear-gradient(180deg, #05132661 0%, #0b20384d 53%, #041120a3 100%),
+    url("/invitation-landscape-night.webp");
+  background-size: cover, cover, cover;
+  background-position: center, center, center bottom;
+  color: #fff5e5;
+}
+.experience-shell::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 66% 65% at 50% 40%, transparent 42%, #020a19a8 100%);
+  content: "";
+  pointer-events: none;
+}
+.experience-stage {
+  z-index: 1;
+  min-height: 100dvh;
+  padding: 72px 16px 22px;
+}
+.experience-quick-nav {
+  top: 14px;
+  gap: 0;
+  width: min(calc(100% - 34px), 392px);
+  padding: 4px;
+  border: 1px solid #e4ca965c;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f4ead020, #102b48bd 45%, #f4ead012);
+  box-shadow: inset 0 1px #fff5dc30, 0 12px 32px #0005;
+  backdrop-filter: blur(16px);
+}
+.experience-quick-nav button {
+  position: relative;
+  flex: 1;
+  min-height: 37px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 999px;
+  color: #f3e8d5;
+  font: 500 clamp(12px, 2.4vw, 15px)/1 var(--font-playfair), Georgia, serif;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+.experience-quick-nav button[aria-current="step"] {
+  border: 0;
+  background: #e3c89224;
+  color: #fff9ed;
+  box-shadow: inset 0 0 0 1px #e3c8924a;
+}
+.experience-quick-nav button[aria-current="step"]::after {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f1d392;
+  content: "";
+  transform: translateX(-50%);
+}
+.experience-quick-nav button:last-child { color: #f7deb0; }
+.experience-quick-nav button:hover { background: #e3c89220; }
+.experience-reveal-scene {
+  width: min(100%, 710px);
+}
+.experience-invitation-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(8px, 1.3dvh, 14px);
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  isolation: isolate;
+}
+.experience-portrait-cluster {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 15px;
+}
+.experience-portrait-cluster::before {
+  position: absolute;
+  z-index: -1;
+  inset: 4% -28%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #f5cf864a, #4c6b7540 38%, transparent 72%);
+  filter: blur(17px);
+  content: "";
+}
+.experience-portrait-card {
+  position: relative;
+  height: clamp(180px, 31dvh, 318px);
+  aspect-ratio: 4 / 5;
+  padding: 5px;
+  border: 1px solid #f6e0b3;
+  border-radius: 37% 37% 17% 17% / 28% 28% 12% 12%;
+  background: linear-gradient(125deg, #9c7537, #fff1cb 20%, #b9914c 49%, #f7dfaa 76%, #88632f);
+  box-shadow: 0 0 0 3px #0a2039, 0 0 0 4px #e4c47f9e, 0 20px 38px #0009, 0 0 40px #e1c17e2d;
+}
+.experience-portrait-image {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #07192c;
+  border-radius: inherit;
+  background: linear-gradient(145deg, #1a3951, #071629);
+}
+.experience-portrait-image img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.experience-portrait-backdrop { object-fit: cover; filter: blur(15px) brightness(.65); transform: scale(1.15); }
+.experience-portrait-photo { object-fit: contain; object-position: center; filter: saturate(.9) contrast(1.04); }
+.experience-portrait-placeholder { width: 35%; height: 35%; margin: 68% auto 0; color: #ead3a1; }
+.experience-seal {
+  position: absolute;
+  right: -24px;
+  bottom: -20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: clamp(64px, 10dvh, 92px);
+  aspect-ratio: 1;
+  border: 2px solid #f3dbac;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #233f57, #06162a 72%);
+  box-shadow: 0 0 0 3px #07172a, 0 0 0 4px #c89d56, 0 9px 22px #0009;
+  color: #f5dfb2;
+  font: 600 8px/1.1 var(--font-inter), sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.experience-seal svg { width: 22px; height: 22px; margin-bottom: 2px; }
+.experience-seal strong { font: 600 12px/1.1 var(--font-playfair), Georgia, serif; letter-spacing: .02em; }
+.experience-invitation-copy { width: 100%; }
+.experience-invite-eyebrow {
+  color: #f0d29a;
+  font: 600 clamp(9px, 1.3dvh, 11px)/1.3 var(--font-inter), sans-serif;
+  letter-spacing: .23em;
+  text-transform: uppercase;
+}
+.experience-invite-name {
+  max-width: 100%;
+  margin: 3px auto 4px;
+  color: #fff0da;
+  font: 400 clamp(2.35rem, min(8.4vw, 7.5dvh), 4.45rem)/1.04 var(--font-playfair), Georgia, serif;
+  letter-spacing: -.048em;
+  text-shadow: 0 3px 20px #0008;
+  text-wrap: balance;
+}
+.experience-invite-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #f1d7aa;
+  font: 500 clamp(10px, 1.5dvh, 13px)/1.35 var(--font-inter), sans-serif;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+.experience-invite-title span { width: clamp(22px, 9vw, 72px); height: 1px; background: linear-gradient(90deg, transparent, #f1d7aa); }
+.experience-invite-title span:last-child { transform: rotate(180deg); }
+.experience-invite-quote {
+  display: -webkit-box;
+  max-width: 54ch;
+  margin: 7px auto 0;
+  overflow: hidden;
+  color: #fff2df;
+  font: italic 500 clamp(15px, 2.4dvh, 20px)/1.17 var(--font-cormorant), Georgia, serif;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  text-wrap: balance;
+}
+.experience-detail-glass {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 660px);
+  padding: clamp(10px, 1.8dvh, 17px) 8px;
+  border: 1px solid #efd8ae80;
+  border-radius: 21px;
+  background: linear-gradient(135deg, #d3e2e124, #153552d6 38%, #0c2542ed 72%, #e5dccb1e);
+  box-shadow: inset 0 1px #ffffff33, 0 17px 40px #0007;
+  backdrop-filter: blur(15px);
+}
+.experience-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 1px clamp(5px, 1.5vw, 17px);
+  color: #fff5e8;
+  font: 500 clamp(12px, 1.7dvh, 14px)/1.3 var(--font-cormorant), Georgia, serif;
+  overflow-wrap: anywhere;
+}
+.experience-detail-item + .experience-detail-item { border-left: 1px solid #f1d8a352; }
+.experience-detail-item svg { width: 22px; height: 22px; margin-bottom: 6px; color: #f1d7a7; }
+.experience-detail-overline {
+  margin-bottom: 3px;
+  color: #f4dbac;
+  font: 600 clamp(9px, 1.2dvh, 10px)/1.2 var(--font-inter), sans-serif;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.experience-detail-item strong {
+  color: #fff9ed;
+  font: 500 clamp(13px, 2dvh, 16px)/1.18 var(--font-playfair), Georgia, serif;
+}
+.experience-detail-item > span:last-child:not(.experience-detail-overline) { margin-top: 4px; }
+.experience-rsvp-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-width: 156px;
+  min-height: 44px;
+  margin: 1px auto 0;
+  padding: 8px 23px;
+  border: 1px solid #f9e8c3;
+  border-radius: 999px;
+  background: linear-gradient(115deg, #f7e8c8, #d6af70 56%, #f2dcad);
+  box-shadow: inset 0 1px #fff9e6, 0 10px 26px #0007;
+  color: #07172c;
+  font: 600 15px/1 var(--font-playfair), Georgia, serif;
+  letter-spacing: .04em;
+}
+.experience-rsvp-call:hover { background: linear-gradient(115deg, #fff3da, #e5c48a 56%, #fff0cb); transform: translateY(-1px); }
+.experience-rsvp-call span { font-family: var(--font-inter), sans-serif; font-size: 17px; }
+.experience-rsvp-call:focus-visible { outline: 2px solid #fff3d7; outline-offset: 4px; }
+
+/* The functional detail and RSVP views retain a bright paper surface for form contrast. */
+.experience-paper {
+  border: 1px solid #e7cb95;
+  border-radius: 20px;
+  box-shadow: inset 0 1px #fff, 0 22px 60px #0008;
+}
+
+@media (max-width: 500px) {
+  .experience-shell {
+    background-image:
+      radial-gradient(ellipse 80% 43% at 50% 30%, #23425d55, transparent 78%),
+      linear-gradient(180deg, #05132647 0%, #0b20383d 58%, #04112091 100%),
+      url("/invitation-landscape-mobile.webp");
+  }
+  .experience-stage { padding: 67px 14px 17px; }
+  .experience-detail-glass { border-radius: 17px; }
+  .experience-invite-title { gap: 7px; letter-spacing: .14em; }
+  .experience-invite-title span { width: 18px; }
+  .experience-seal { right: -15px; }
+}
+@media (max-height: 700px) {
+  .experience-stage { padding-top: 60px; padding-bottom: 12px; }
+  .experience-quick-nav { top: 9px; }
+  .experience-quick-nav button { min-height: 32px; }
+  .experience-invitation-card { gap: 6px; }
+  .experience-portrait-cluster { margin-bottom: 10px; }
+  .experience-portrait-card { height: clamp(145px, 29dvh, 215px); }
+  .experience-seal { bottom: -16px; width: 62px; }
+  .experience-seal svg { width: 17px; height: 17px; }
+  .experience-seal strong { font-size: 10px; }
+  .experience-invite-quote { margin-top: 4px; }
+  .experience-detail-glass { padding-top: 9px; padding-bottom: 9px; }
+  .experience-detail-item svg { width: 17px; height: 17px; margin-bottom: 3px; }
+  .experience-rsvp-call { min-height: 40px; }
+}
+@media (max-height: 560px) {
+  .experience-portrait-card { height: 132px; }
+  .experience-seal { width: 54px; }
+  .experience-invite-name { font-size: 2rem; }
+  .experience-invite-quote { display: none; }
+  .experience-detail-item > span:last-child:not(.experience-detail-overline) { display: none; }
+}
+@media (max-width: 340px) and (max-height: 620px) {
+  .experience-stage { padding-top: 53px; padding-bottom: 8px; }
+  .experience-invitation-card { gap: 3px; }
+  .experience-portrait-card { height: 132px; }
+  .experience-portrait-cluster { margin-bottom: 5px; }
+  .experience-seal { bottom: -13px; width: 51px; }
+  .experience-invite-name { font-size: 2rem; }
+  .experience-invite-quote { display: none; }
+  .experience-detail-glass { padding-top: 7px; padding-bottom: 7px; }
+  .experience-rsvp-call { min-height: 37px; padding-top: 6px; padding-bottom: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .experience-rsvp-call:hover { transform: none; }
+}
